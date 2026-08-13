@@ -1,0 +1,63 @@
+server:
+  port: 9090
+  servlet:
+    context-path: /api
+
+spring:
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  servlet:
+    multipart:
+      max-file-size: 1MB
+      max-request-size: 1MB
+
+
+jwt:
+  SECRET_KEY_STR: f3yna73XNiDdLegXgx9f0HIRxvfX0a5ZH7uhzkPOIVk=
+#  EXPIRE_TIME: 3600000
+  EXPIRE_TIME: 360000000000
+  security:
+    public-paths:
+      - /auth/login
+      - /auth/register
+#      - /user/update
+
+# 上传文件通用
+upload:
+  root-path: F:/upload/
+  # 各业务上传配置
+  type-config:
+    # 头像
+    avatar:
+      sub-path: avatar/
+      allow-suffix: jpg,jpeg,png
+      max-size-mb: 2
+    # 商品图片
+    goods:
+      sub-path: goods/
+      allow-suffix: jpg,jpeg,png,webp
+      max-size-mb: 5
+    # 普通附件文档
+    document:
+      sub-path: document/
+      allow-suffix: jpg,png,pdf,docx,xlsx,zip,rar
+      max-size-mb: 10
+
+mybatis-plus:
+  global-config:
+    db-config:
+      # 逻辑删除字段名
+      logic-delete-field: isDeleted
+      # 未删除值
+      logic-not-delete-value: 0
+      # 已删除值
+      logic-delete-value: 1
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.atguigu.meet.model.entity
+
+
+

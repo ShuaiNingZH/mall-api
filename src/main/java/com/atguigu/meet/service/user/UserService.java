@@ -1,0 +1,35 @@
+package com.atguigu.meet.service.user;
+
+import com.atguigu.meet.common.Response;
+import com.atguigu.meet.model.dto.user.UserDeleteDTO;
+import com.atguigu.meet.model.dto.user.UserPageQueryDTO;
+import com.atguigu.meet.model.dto.user.UserUpdateDTO;
+import com.atguigu.meet.model.entity.user.AdminUser;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.multipart.MultipartFile;
+
+/**
+ * @Description
+ * @Date 2026-08-12 23:59
+ */
+public interface UserService {
+    Response deleteUserByIds(UserDeleteDTO userDeleteDTO);
+
+    Response updateUser(UserUpdateDTO userUpdateDTO);
+
+    Response getUserByPhone(String phone, AdminUser loginAdmin);
+
+    Response getList();
+
+    Response getPageList(UserPageQueryDTO parameter);
+
+    void exportUserToCsv(HttpServletResponse response);
+
+    Response uploadUserAvatar(MultipartFile file, Long userId);
+
+    Response getUserWithOrders(String phone, AdminUser loginAdmin);
+
+    /*List<Map<String, Object>> mapList();
+
+    List<Object> idList();*/
+}

@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/meet?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=UTC
+    username: root
+    password: 123456
+  sql:
+    # 后期在处理
+    init:
+      mode: never
+      # 启动执行建表脚本
+      schema-locations: classpath:sql/init/schema.sql
+      # 启动执行初始数据脚本
+      data-locations: classpath:sql/init/data.sql

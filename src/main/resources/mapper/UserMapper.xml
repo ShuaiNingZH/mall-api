@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.meet.mapper.user.UserMapper">
+    <select id="selectByAccount" resultType="com.atguigu.meet.model.entity.user.SysUser">
+        SELECT *
+        FROM sys_user
+        WHERE username = #{account} OR phone = #{account}
+    </select>
+
+    <resultMap id="UserOrderResultMap"
+               type="com.atguigu.meet.model.vo.user.UserOrderVO"
+    >
+        <id column="u_id" property="userId"/>
+        <result column="username" property="username"/>
+        <result column="phone" property="phone"/>
+        <collection property="ordersList" ofType="com.atguigu.meet.model.entity.Orders">
+            <id column="o_id" property="id"/>
+            <result column="order_no" property="orderNo"/>
+            <result column="total_amount" property="totalAmount"/>
+            <result column="status" property="status"/>
+            <result column="create_time" property="createTime"/>
+        </collection>
+    </resultMap>
+
+    <select id="getUserWithOrders" resultMap="UserOrderResultMap">
+        SELECT u.id       u_id,
+               u.username username,
+               u.phone,
+               o.id       o_id,
+               o.order_no,
+               o.total_amount,
+               o.status,
+               o.create_time
+        FROM sys_user u
+                 LEFT JOIN orders o
+                           ON u.id = o.user_id
+        WHERE u.phone = #{phone};
+    </select>
+</mapper>
