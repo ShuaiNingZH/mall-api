@@ -3,7 +3,7 @@ package com.atguigu.meet.service.auth.impl;
 import com.atguigu.meet.common.Response;
 import com.atguigu.meet.exception.BusinessException;
 import com.atguigu.meet.mapper.user.UserMapper;
-import com.atguigu.meet.mapper.system.SysPermissionMapper;
+import com.atguigu.meet.mapper.system.SysMenuMapper;
 import com.atguigu.meet.model.dto.auth.AuthRegisterDTO;
 import com.atguigu.meet.model.dto.auth.AuthLoginDTO;
 import com.atguigu.meet.model.entity.user.SysUser;
@@ -39,7 +39,7 @@ public class AuthServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     private UserMapper userMapper;
 
     @Autowired
-    private SysPermissionMapper sysPermissionMapper;
+    private SysMenuMapper sysMenuMapper;
 
     @Override
     public Response register(AuthRegisterDTO authRegisterDTO) {
@@ -75,7 +75,7 @@ public class AuthServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         claims.put("phone", existUser.getPhone());
         claims.put("status", existUser.getStatus());
         // 查询当前用户的权限码列表，写入 JWT（无状态授权）
-        List<String> permissions = sysPermissionMapper.selectPermissionCodesByUserId(existUser.getId());
+        List<String> permissions = sysMenuMapper.selectPermsByUserId(existUser.getId());
         claims.put("permissions", permissions);
         String token = jwtUtil.generateToken(existUser.getId(), claims);
         Map<String, Object> data = new HashMap<>();
