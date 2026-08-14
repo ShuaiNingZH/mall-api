@@ -65,7 +65,8 @@ CREATE TABLE IF NOT EXISTS sys_menu (
     parent_id    BIGINT       DEFAULT 0 COMMENT '父菜单ID(0表示顶级；自关联外键未加,因0非有效id,如需可改NULL后添加)',
     menu_name    VARCHAR(50)  NOT NULL COMMENT '菜单/权限名称',
     menu_code    VARCHAR(100) COMMENT '菜单编码(目录/菜单可用，如 sys)',
-    perms        VARCHAR(100) COMMENT '权限标识(按钮用，如 user:delete)',
+    perms        VARCHAR(100) COMMENT '权限标识(按钮用，格式: 模块:页面:操作，如 sys:user:delete)',
+    UNIQUE KEY uk_perms (perms),
     type         TINYINT      NOT NULL DEFAULT 1 COMMENT '类型 0目录 1菜单 2按钮权限',
     path         VARCHAR(200) COMMENT '路由路径(目录/菜单)',
     route_name   VARCHAR(100) COMMENT '路由名称(前端keep-alive匹配用,对应routeName)',
@@ -106,11 +107,11 @@ INSERT IGNORE INTO sys_menu(id, parent_id, menu_name, menu_code, perms, type, pa
 (1, 0, '系统管理', 'sys',  NULL,        0, '/sys',       NULL,                     'Setting', 10, 1),
 -- 用户管理菜单
 (2, 1, '用户管理', 'user', NULL,        1, 'user',       'sys/user/index',         'User',     10, 1),
--- 用户管理下的按钮权限
-(3, 2, '用户查询', NULL,   'user:query',  2, NULL, NULL, NULL, 1, 1),
-(4, 2, '用户新增', NULL,   'user:add',    2, NULL, NULL, NULL, 2, 1),
-(5, 2, '用户修改', NULL,   'user:update', 2, NULL, NULL, NULL, 3, 1),
-(6, 2, '用户删除', NULL,   'user:delete', 2, NULL, NULL, NULL, 4, 1);
+-- 用户管理下的按钮权限（格式: 模块:页面:操作）
+(3, 2, '用户查询', NULL,   'sys:user:query',  2, NULL, NULL, NULL, 1, 1),
+(4, 2, '用户新增', NULL,   'sys:user:add',    2, NULL, NULL, NULL, 2, 1),
+(5, 2, '用户修改', NULL,   'sys:user:update', 2, NULL, NULL, NULL, 3, 1),
+(6, 2, '用户删除', NULL,   'sys:user:delete', 2, NULL, NULL, NULL, 4, 1);
 
 -- 给超级管理员分配以上全部菜单/权限
 INSERT IGNORE INTO sys_role_menu(role_id, menu_id)
