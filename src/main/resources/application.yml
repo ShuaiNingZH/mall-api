@@ -59,5 +59,12 @@ mybatis-plus:
   mapper-locations: classpath:mapper/**/*.xml
   type-aliases-package: com.atguigu.meet.model.entity
 
+# 权限缓存配置
+permission:
+  # Redis 缓存前缀
+  cache-prefix: "meet:permission:"
+  # 缓存过期时间（秒），默认 1 小时
+  expire-seconds: 3600
+
 
 

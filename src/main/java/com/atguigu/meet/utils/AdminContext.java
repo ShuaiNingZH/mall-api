@@ -2,6 +2,9 @@ package com.atguigu.meet.utils;
 
 import com.atguigu.meet.model.entity.user.AdminUser;
 
+import java.util.Collections;
+import java.util.Set;
+
 /**
  * @Description
  * @Date 2026-06-03 16:40
@@ -31,5 +34,18 @@ public class AdminContext {
             return null;
         }
         return adminUser.getUserId();
+    }
+
+    /**
+     * 获取当前登录用户的权限集合
+     *
+     * @return 权限标识集合（无权限时返回空集合，非null）
+     */
+    public static Set<String> getLoginUserPermissions() {
+        AdminUser adminUser = ADMIN_TL.get();
+        if (adminUser == null || adminUser.getPermissions() == null) {
+            return Collections.emptySet();
+        }
+        return adminUser.getPermissions();
     }
 }

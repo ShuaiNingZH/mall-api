@@ -11,3 +11,17 @@ spring:
       schema-locations: classpath:sql/init/schema.sql
       # 启动执行初始数据脚本
       data-locations: classpath:sql/init/data.sql
+  # Redis 配置
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password:
+      database: 0
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms

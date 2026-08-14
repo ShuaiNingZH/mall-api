@@ -2,6 +2,7 @@ package com.atguigu.meet.filter;
 
 import com.atguigu.meet.config.JwtSecurityProperties;
 import com.atguigu.meet.model.entity.user.AdminUser;
+import com.atguigu.meet.service.auth.PermissionCacheService;
 import com.atguigu.meet.utils.AdminContext;
 import com.atguigu.meet.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
@@ -22,13 +23,13 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * @Description 解析Token、认证用户
+ * @Description 解析Token、认证用户、加载用户权限（Redis优先+DB兜底）
  * @Date 2026-05-18 16:38
  */
 @Component
@@ -45,6 +46,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private AuthenticationEntryPoint authenticationEntryPoint;
+
+    @Autowired
+    private PermissionCacheService permissionCacheService;
 
     private String getTokenFormRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
@@ -76,44 +80,50 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null && !"undefined".equals(token)) {
             try {
                 // ====================== 3. 校验 Token 是否合法 ======================
-                // 自己写的工具类：验证签名、过期时间、格式
                 boolean isValid = jwtUtil.isTokenValid(token);
                 if (!isValid) {
                     authenticationEntryPoint.commence(request, response, new AuthenticationServiceException("令牌无效"));
                     return;
                 }
-                // 4. 解析 token 获取用户 userId
+                // ====================== 4. 解析 Token 拿到 userId（步骤1）======================
                 Long userId = jwtUtil.extractUserId(token);
                 String phone = jwtUtil.extractPhone(token);
                 String username = jwtUtil.extractUsername(token);
-                // 解析权限码列表，构建 Spring Security 的授权信息
-                List<String> permissions = jwtUtil.extractPermissions(token);
+
+                // ====================== 5. 从Redis/DB获取用户权限集合（步骤2+3）======================
+                // Redis 优先 -> Redis 无则执行多表联查 -> 写入 Redis 并设置过期时间
+                Set<String> permissions = permissionCacheService.getUserPermissions(userId);
+
+                // 构建 Spring Security 的授权信息
                 List<GrantedAuthority> authorities = permissions.stream()
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
+
                 HashMap<String, Object> userinfo = new HashMap<>();
                 userinfo.put("userId", userId);
                 userinfo.put("phone", phone);
                 userinfo.put("username", username);
-                // 5. 构建认证信息，告诉 Spring Security：这个人已登录！并携带其权限
+
+                // ====================== 6. 构建认证信息，告诉 Spring Security：这个人已登录！并携带其权限 ======================
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userinfo,
                         null,
                         authorities
                 );
-                // 6. 存入上下文
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                // 存入用户信息上下文
+                // 存入用户信息上下文（含权限集合，供 @RequirePermission AOP 切面直接使用）
                 AdminUser adminUser = new AdminUser();
                 adminUser.setUserId(userId);
                 adminUser.setPhone(phone);
                 adminUser.setUsername(username);
+                adminUser.setPermissions(permissions);
                 AdminContext.set(adminUser);
             } catch (Exception ex) {
                 // 任何异常都清空认证信息，避免上下文泄漏
                 SecurityContextHolder.clearContext();
                 AdminContext.remove();
+                log.error("[JWT] 令牌验证失败: {}", ex.getMessage(), ex);
                 authenticationEntryPoint.commence(request, response, new AuthenticationServiceException("令牌验证失败: " + ex.getMessage()));
                 return;
             }
