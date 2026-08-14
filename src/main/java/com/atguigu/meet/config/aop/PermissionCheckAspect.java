@@ -50,6 +50,7 @@ public class PermissionCheckAspect {
         // ====================== 步骤4：获取当前请求接口的权限标识符（注解方式）======================
         RequirePermission annotation = getRequirePermissionAnnotation(joinPoint);
         if (annotation == null) {
+            log.debug("[权限校验] 接口无@RequirePermission注解，直接放行");
             return joinPoint.proceed();
         }
 
@@ -63,37 +64,43 @@ public class PermissionCheckAspect {
         // 接口要求的权限标识
         String[] requiredPerms = annotation.value();
         if (requiredPerms == null || requiredPerms.length == 0) {
+            log.debug("[权限校验] 注解value为空，直接放行，userId={}", userId);
             return joinPoint.proceed();
         }
 
         // ====================== 步骤5：判断用户权限集合是否包含该标识符 ======================
         Set<String> userPerms = getUserPermissions(userId);
+        log.info("[权限校验] 开始校验，userId={}, 要求权限={}, 用户权限={}, 模式={}",
+                userId, Arrays.toString(requiredPerms), userPerms, annotation.mode());
 
         boolean hasPermission = checkPermission(userPerms, requiredPerms, annotation.mode());
         if (!hasPermission) {
-            log.warn("[权限校验] 权限不足，userId={}, 需要权限={}, 用户权限={}",
+            log.warn("[权限校验] 权限不足！userId={}, 需要权限={}, 用户实际权限={}",
                     userId, Arrays.toString(requiredPerms), userPerms);
             throw new BusinessException(403, annotation.message());
         }
 
         // 包含：放行执行业务
-        log.debug("[权限校验] 权限校验通过，userId={}, 接口权限={}", userId, Arrays.toString(requiredPerms));
+        log.info("[权限校验] 权限校验通过，userId={}, 接口权限={}", userId, Arrays.toString(requiredPerms));
         return joinPoint.proceed();
     }
 
     /**
      * 获取用户权限集合：
      * 1. 优先从 AdminContext（ThreadLocal内存）获取，零成本
-     * 2. 内存中没有（如特殊场景跳过了JWT过滤器），再查 Redis + DB
+     * 2. 内存中没有（null或空集合），再查 Redis + DB
      */
     private Set<String> getUserPermissions(Long userId) {
         Set<String> perms = AdminContext.getLoginUserPermissions();
         if (perms != null && !perms.isEmpty()) {
+            log.debug("[权限校验] 从AdminContext获取权限，userId={}, 权限数={}", userId, perms.size());
             return perms;
         }
-        log.debug("[权限校验] AdminContext中无权限数据，走Redis/DB查询，userId={}", userId);
+        log.info("[权限校验] AdminContext中无有效权限数据，走Redis/DB查询，userId={}", userId);
         try {
-            return permissionCacheService.getUserPermissions(userId);
+            Set<String> dbPerms = permissionCacheService.getUserPermissions(userId);
+            log.info("[权限校验] Redis/DB查询完成，userId={}, 权限数={}", userId, dbPerms.size());
+            return dbPerms;
         } catch (Exception e) {
             log.error("[权限校验] 获取用户权限失败，userId={}", userId, e);
             throw new BusinessException(500, "权限校验失败：" + e.getMessage());

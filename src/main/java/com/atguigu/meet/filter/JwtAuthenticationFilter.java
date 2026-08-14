@@ -89,10 +89,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Long userId = jwtUtil.extractUserId(token);
                 String phone = jwtUtil.extractPhone(token);
                 String username = jwtUtil.extractUsername(token);
+                log.info("[JWT] Token解析成功，userId={}, username={}", userId, username);
 
                 // ====================== 5. 从Redis/DB获取用户权限集合（步骤2+3）======================
                 // Redis 优先 -> Redis 无则执行多表联查 -> 写入 Redis 并设置过期时间
                 Set<String> permissions = permissionCacheService.getUserPermissions(userId);
+                log.info("[JWT] 权限加载完成，userId={}, 权限集合={}", userId, permissions);
 
                 // 构建 Spring Security 的授权信息
                 List<GrantedAuthority> authorities = permissions.stream()
@@ -119,6 +121,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 adminUser.setUsername(username);
                 adminUser.setPermissions(permissions);
                 AdminContext.set(adminUser);
+                log.info("[JWT] 用户上下文已设置，userId={}", userId);
             } catch (Exception ex) {
                 // 任何异常都清空认证信息，避免上下文泄漏
                 SecurityContextHolder.clearContext();
