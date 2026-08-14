@@ -1,0 +1,30 @@
+package com.atguigu.meet.service.notice;
+
+import com.atguigu.meet.common.Response;
+import com.atguigu.meet.model.dto.notice.NoticePageQueryDTO;
+import com.atguigu.meet.model.dto.notice.NoticeSaveDTO;
+import com.atguigu.meet.model.dto.notice.NoticeUpdateDTO;
+
+/**
+ * 公告管理 Service
+ */
+public interface NoticeService {
+
+    /** 公告分页列表 */
+    Response getPageList(NoticePageQueryDTO parameter);
+
+    /** 根据ID查公告（聚合阅读次数） */
+    Response getNoticeById(Long id);
+
+    /** 所有启用公告（C端展示/下拉用） */
+    Response getAllEnabledNotices();
+
+    /** 新增公告 */
+    Response addNotice(NoticeSaveDTO dto);
+
+    /** 修改公告 */
+    Response updateNotice(NoticeUpdateDTO dto);
+
+    /** 删除公告（逻辑删除） */
+    Response deleteNotice(Long id);
+}

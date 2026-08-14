@@ -70,6 +70,21 @@ public final class PermissionConst {
     public static final String SYS_LOG_QUERY = "sys:log:query";
 
     // ==========================================
+    // 公告管理 (sys:notice:xxx)
+    // 对应 sys_menu: 公告管理菜单 -> 按钮
+    // ==========================================
+    /** 公告查询 */
+    public static final String NOTICE_QUERY = "sys:notice:query";
+    /** 公告新增 */
+    public static final String NOTICE_ADD = "sys:notice:add";
+    /** 公告修改 */
+    public static final String NOTICE_UPDATE = "sys:notice:update";
+    /** 公告删除 */
+    public static final String NOTICE_DELETE = "sys:notice:delete";
+    /** 公告阅读日志查询 */
+    public static final String NOTICE_LOG_QUERY = "sys:notice:log";
+
+    // ==========================================
     // 文件管理 (file:xxx:xxx)
     // 预留
     // ==========================================

@@ -146,3 +146,37 @@ INSERT IGNORE INTO sys_user (id, username, password, nickname, email, phone, age
 -- 给指定用户绑定超级管理员角色
 -- =============================================
 INSERT IGNORE INTO sys_user_role(user_id, role_id) VALUES(1, 1);
+
+-- =============================================
+-- 公告模块表：t_notice / t_notice_log
+-- =============================================
+
+-- 5. 平台公告表
+CREATE TABLE IF NOT EXISTS `t_notice` (
+    `id`          bigint       NOT NULL AUTO_INCREMENT COMMENT '公告ID，主键',
+    `title`       varchar(200) NOT NULL COMMENT '公告标题',
+    `content`     longtext     NOT NULL COMMENT '富文本公告内容',
+    `sort`        int          DEFAULT 0 COMMENT '排序，数值越大越靠前展示',
+    `status`      tinyint      NOT NULL DEFAULT 1 COMMENT '状态：0-禁用，1-启用',
+    `is_deleted`  tinyint      NOT NULL DEFAULT 0 COMMENT '逻辑删除 0未删 1已删',
+    `create_time` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `create_by`   bigint       DEFAULT NULL COMMENT '操作人ID(管理员id)',
+    `update_by`   bigint       DEFAULT NULL COMMENT '更新人ID',
+    PRIMARY KEY (`id`),
+    KEY `idx_status_deleted` (`status`,`is_deleted`) COMMENT '查询C端公告联合索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='平台公告表';
+
+-- 6. 公告阅读日志表（记录用户阅读公告的行为）
+CREATE TABLE IF NOT EXISTS `t_notice_log` (
+    `id`          bigint   NOT NULL AUTO_INCREMENT COMMENT '日志ID，主键',
+    `notice_id`   bigint   NOT NULL COMMENT '公告ID(t_notice.id)',
+    `user_id`     bigint   NOT NULL COMMENT '用户ID(sys_user.id)',
+    `read_time`   datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '阅读时间',
+    `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_notice_user` (`notice_id`, `user_id`) COMMENT '同一用户同一条公告只记录一次',
+    KEY `idx_user_id` (`user_id`) COMMENT '按用户查询阅读记录索引',
+    CONSTRAINT `fk_notice_log_notice` FOREIGN KEY (`notice_id`) REFERENCES `t_notice` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `fk_notice_log_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='公告阅读日志表';
