@@ -24,26 +24,22 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('user:query')")
     public Response pageList(@Valid UserPageQueryDTO parameter) {
         return userService.getPageList(parameter);
     }
 
     // 假删除
     @DeleteMapping
-    @PreAuthorize("hasAuthority('user:delete')")
     public Response deleteUser(@RequestBody @Valid UserDeleteDTO userDeleteDTO) {
         return userService.deleteUserByIds(userDeleteDTO);
     }
 
     @PutMapping
-    @PreAuthorize("hasAuthority('user:update')")
     public Response updateUser(@RequestBody @Valid UserUpdateDTO userUpdateDTO) {
         return userService.updateUser(userUpdateDTO);
     }
 
     @PostMapping("avatar/{userId}")
-    @PreAuthorize("hasAuthority('user:update')")
     public Response uploadUserAvatar(
             @PathVariable Long userId,
             @RequestParam("file") MultipartFile file

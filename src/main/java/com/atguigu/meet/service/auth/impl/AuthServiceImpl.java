@@ -70,7 +70,7 @@ public class AuthServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         if (!bool) throw new BusinessException("用户账号密码不正确");
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", existUser.getUsername());
-        claims.put("nickname", existUser.getNickname());
+//        claims.put("nickname", existUser.getNickname());
 //        claims.put("birthday", existUser.getBirthday());
         claims.put("phone", existUser.getPhone());
         claims.put("status", existUser.getStatus());

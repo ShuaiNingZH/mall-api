@@ -62,8 +62,8 @@ public class JwtUtil implements JwtService {
             Map<String, Object> claims
     ) {
         return Jwts.builder()
-                .setSubject(userId.toString())
                 .setClaims(claims)
+                .setSubject(userId.toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRE_TIME))
                 .signWith(SECRET_KEY)
@@ -81,7 +81,7 @@ public class JwtUtil implements JwtService {
     // 解析 token, 获取用户 id
     public Long extractUserId(String token) {
         final Claims claims = extractClaims(token);
-        return Long.getLong(claims.getSubject());
+        return Long.valueOf(claims.getSubject());
     }
 
     // 解析 token, 获取手机号
