@@ -2,20 +2,61 @@ package com.atguigu.meet.model.dto.auth;
 
 import com.atguigu.meet.model.dto.user.UserBaseDTO;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
- * 用户新增请求DTO
- * 为什么不用重写 setter？
- * 赋值是 Spring 用 setter 完成的
- * 校验是校验框架读 getter 上的注解规则
- * 两者分工完全分开：
- * setter：接收前端参数赋值
- * getter：被校验框架读取规则、做校验
+ * 用户注册请求DTO
+ * 必传字段：username、password、phone
+ * 其他字段非必传，未传时使用默认值：
+ * - nickname、email：null（父类有 @Length/@Email 约束，null 跳过校验）
+ * - gender："0"（未知）
+ * - age：0
+ * - avatar：""（空字符串）
+ * - birthday：null（日期无自然默认值）
+ * - status："1"（正常）
+ *
+ * setter 覆盖策略：
+ * - nickname/email：前端传 "" 时转 null，避免父类 @Length/@Email 校验失败
+ * - gender/status：前端传 "" 时保留构造函数默认值
+ *
+ * getter 覆盖策略：
+ * - 校验框架读 getter 上的注解规则做校验
+ * - 只在 getter 上加 @NotBlank，确保只有三个必传字段
  */
 @Data
 public class AuthRegisterDTO extends UserBaseDTO {
+
+    public AuthRegisterDTO() {
+        setGender("0");
+        setAge(0);
+        setAvatar("");
+        setStatus("1");
+    }
+
+    @Override
+    public void setNickname(String nickname) {
+        super.setNickname((nickname == null || nickname.isEmpty()) ? null : nickname);
+    }
+
+    @Override
+    public void setEmail(String email) {
+        super.setEmail((email == null || email.isEmpty()) ? null : email);
+    }
+
+    @Override
+    public void setGender(String gender) {
+        if (gender != null && !gender.isEmpty()) {
+            super.setGender(gender);
+        }
+    }
+
+    @Override
+    public void setStatus(String status) {
+        if (status != null && !status.isEmpty()) {
+            super.setStatus(status);
+        }
+    }
+
     @NotBlank(message = "用户名不能为空")
     @Override
     public String getUsername() {
@@ -28,13 +69,7 @@ public class AuthRegisterDTO extends UserBaseDTO {
         return super.getPassword();
     }
 
-    @NotNull(message = "年龄不能为空")
-    @Override
-    public Integer getAge() {
-        return super.getAge();
-    }
-
-    @NotNull(message = "手机号不能为空")
+    @NotBlank(message = "手机号不能为空")
     @Override
     public String getPhone() {
         return super.getPhone();

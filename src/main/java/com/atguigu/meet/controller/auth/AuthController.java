@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
+ * 登录/注册
  * @Description
  * @Date 2026-08-12 22:59
  */
@@ -21,11 +22,17 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    /**
+     * 登录
+     */
     @PostMapping("login")
     public Response login(@RequestBody @Valid AuthLoginDTO user) {
         return authService.login(user);
     }
 
+    /**
+     * 注册
+     */
     @PostMapping("register")
     public Response register(@RequestBody @Valid AuthRegisterDTO user) {
         return authService.register(user);

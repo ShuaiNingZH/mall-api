@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
+ * 文件管理接口
+ *
  * @Description
  * @Date 2026-08-13 9:39
  */
@@ -19,11 +21,13 @@ public class FileController {
     @Autowired
     public FileService fileService;
 
+    /**
+     * 上传文件(后端内部接口)
+     */
     @PostMapping("upload")
     public Response upload(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("bizType") String bizType
-    ) {
+            @RequestParam("bizType") String bizType) {
         try {
             return fileService.upload(file, bizType);
         } catch (RuntimeException e) {
