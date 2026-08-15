@@ -91,8 +91,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           # Keep this enabled until the remote-command failure is diagnosed.
           debug: true
-          # Allocate a pseudo-terminal to match a Termius session more closely.
-          request_pty: true
           script: |
             set -u
             if ! cd "${{ secrets.SERVER_TARGET }}"; then
