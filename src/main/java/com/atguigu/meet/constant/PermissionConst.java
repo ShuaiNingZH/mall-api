@@ -85,6 +85,19 @@ public final class PermissionConst {
     public static final String NOTICE_LOG_QUERY = "sys:notice:log";
 
     // ==========================================
+    // 轮播图管理 (sys:banner:xxx)
+    // 对应 sys_menu: 轮播图管理菜单 -> 按钮
+    // ==========================================
+    /** 轮播图查询 */
+    public static final String BANNER_QUERY = "sys:banner:query";
+    /** 轮播图新增 */
+    public static final String BANNER_ADD = "sys:banner:add";
+    /** 轮播图修改 */
+    public static final String BANNER_UPDATE = "sys:banner:update";
+    /** 轮播图删除 */
+    public static final String BANNER_DELETE = "sys:banner:delete";
+
+    // ==========================================
     // 文件管理 (file:xxx:xxx)
     // 预留
     // ==========================================

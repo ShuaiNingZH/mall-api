@@ -1,10 +1,10 @@
 -- 1. 如果数据库不存在则创建，字符集utf8mb4（支持emoji），排序规则通用
-CREATE DATABASE IF NOT EXISTS meet
+CREATE DATABASE IF NOT EXISTS mall
 DEFAULT CHARACTER SET utf8mb4
 DEFAULT COLLATE utf8mb4_unicode_ci;
 
 -- 2. 切换到刚创建的数据库
-USE meet;
+USE mall;
 -- 3. RBAC 相关表（sys_user / sys_role / sys_user_role / sys_menu / sys_role_menu）
 --    已统一迁移至 src/main/resources/sql/rbac.sql，执行 rbac.sql 即可
 -- =============================================
@@ -216,3 +216,41 @@ CREATE TABLE IF NOT EXISTS `t_notice_log` (
     CONSTRAINT `fk_notice_log_notice` FOREIGN KEY (`notice_id`) REFERENCES `t_notice` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `fk_notice_log_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='公告阅读日志表';
+
+-- =============================================
+-- 轮播图模块表：banner
+-- =============================================
+
+-- 7. 轮播图表
+CREATE TABLE IF NOT EXISTS `banner` (
+    `id`          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID(列表ID)',
+    `img_url`     VARCHAR(512)    NOT NULL DEFAULT '' COMMENT '轮播图地址',
+    `position`    VARCHAR(32)     NOT NULL DEFAULT 'home' COMMENT '轮播位置：home=首页 seckill=抢购',
+    `sort`        INT             NOT NULL DEFAULT 0 COMMENT '权重，越大越靠前',
+    `link_value`  VARCHAR(512)    NOT NULL DEFAULT '' COMMENT '跳转url',
+    `status`      TINYINT         NOT NULL DEFAULT 1 COMMENT '状态：0-禁用，1-启用',
+    `is_deleted`  TINYINT         NOT NULL DEFAULT 0 COMMENT '逻辑删除 0未删 1已删',
+    `created_at`  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '添加时间',
+    `updated_at`  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+    `create_by`   BIGINT          DEFAULT NULL COMMENT '操作人ID(管理员id)',
+    `update_by`   BIGINT          DEFAULT NULL COMMENT '更新人ID',
+    PRIMARY KEY (`id`),
+    KEY `idx_position` (`position`),
+    KEY `idx_status_deleted` (`status`, `is_deleted`) COMMENT '查询C端轮播图联合索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='轮播图表';
+
+-- =============================================
+-- 轮播图模块菜单数据
+-- =============================================
+-- 轮播图管理菜单 (假设 id 从 20 开始，避免与已有菜单冲突)
+INSERT IGNORE INTO sys_menu(id, parent_id, menu_name, menu_code, perms, type, path, component, icon, sort, visible) VALUES
+-- 轮播图管理菜单（如果系统管理目录id=1下没有轮播图菜单，可放在运营管理目录或独立目录，这里放在系统管理下做示例，实际可根据前端路由调整parent_id）
+(20, 1, '轮播图管理', 'banner', NULL,              1, 'banner',       'banner/index',          'Picture',  20, 1),
+(21, 20, '轮播图查询', NULL,   'sys:banner:query',  2, NULL, NULL, NULL, 1, 1),
+(22, 20, '轮播图新增', NULL,   'sys:banner:add',    2, NULL, NULL, NULL, 2, 1),
+(23, 20, '轮播图修改', NULL,   'sys:banner:update', 2, NULL, NULL, NULL, 3, 1),
+(24, 20, '轮播图删除', NULL,   'sys:banner:delete', 2, NULL, NULL, NULL, 4, 1);
+
+-- 给超级管理员分配轮播图菜单/权限
+INSERT IGNORE INTO sys_role_menu(role_id, menu_id)
+SELECT 1, id FROM sys_menu WHERE id IN (20, 21, 22, 23, 24);
