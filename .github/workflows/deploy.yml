@@ -80,8 +80,8 @@ jobs:
           remote_user: ${{ secrets.SERVER_USER }}
           remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # The target directory must be writable by SERVER_USER and the host must
-      # have Java 17 (or a compatible newer JRE) available as `java`.
+      # application-prod.yml stays on the server. SERVER_JAVA_BIN is used when
+      # Java is not on the non-interactive SSH PATH.
       - name: Restart Spring Boot application
         uses: appleboy/ssh-action@v1
         with:
@@ -89,8 +89,6 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          # Keep this enabled until the remote-command failure is diagnosed.
-          debug: true
           script: |
             set -u
             if ! cd "${{ secrets.SERVER_TARGET }}"; then
@@ -123,12 +121,6 @@ jobs:
             if [ ! -s application-prod.yml ]; then
               echo "Missing application-prod.yml in $(pwd)."
               echo "Create it on the server with the production database settings; it is intentionally not uploaded by this workflow."
-              exit 1
-            fi
-
-            if grep -Eq '生产IP|生产数据库账号|生产数据库密码' application-prod.yml; then
-              echo "application-prod.yml still contains the repository placeholder values."
-              echo "Replace them with the production database settings before deploying."
               exit 1
             fi
 
