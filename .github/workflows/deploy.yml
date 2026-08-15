@@ -33,6 +33,11 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           cache: maven
 
+      # Git may not retain the executable bit when this repository is edited
+      # on Windows. GitHub-hosted runners execute the wrapper on Linux.
+      - name: Make Maven Wrapper executable
+        run: chmod +x mvnw
+
       - name: Build executable JAR
         run: ./mvnw --batch-mode --no-transfer-progress clean package -DskipTests
 
@@ -63,6 +68,7 @@ jobs:
 
       # Repository secrets required:
       # SERVER_HOST, SERVER_PORT, SERVER_USER, SERVER_TARGET, SSH_PRIVATE_KEY
+      # Set SERVER_JAVA_BIN when Java is not on the SSH user's default PATH.
       - name: Upload JAR to server
         uses: burnett01/rsync-deployments@v8
         with:
@@ -83,35 +89,89 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # Keep this enabled until the remote-command failure is diagnosed.
+          debug: true
           script: |
-            set -eu
-            cd "${{ secrets.SERVER_TARGET }}"
+            set -u
+            if ! cd "${{ secrets.SERVER_TARGET }}"; then
+              echo "Cannot access the deployment directory. Check SERVER_TARGET and the SSH user's permissions."
+              exit 1
+            fi
+            echo "Deployment directory: $(pwd)"
 
-            command -v java
-            java -version
-            test -f app.jar
+            java_bin="${{ secrets.SERVER_JAVA_BIN }}"
+            if [ -n "$java_bin" ]; then
+              if [ ! -x "$java_bin" ]; then
+                echo "SERVER_JAVA_BIN is not an executable file: $java_bin"
+                exit 1
+              fi
+            elif ! java_bin="$(command -v java)"; then
+              echo "Java is not available to the non-interactive SSH shell. PATH: $PATH"
+              echo "Set SERVER_JAVA_BIN to the absolute path of the Java 17 executable."
+              exit 1
+            fi
+            echo "Using Java: $java_bin"
+            "$java_bin" -version
+
+            if [ ! -f app.jar ]; then
+              echo "Missing app.jar in $(pwd)."
+              exit 1
+            fi
+
+            set -e
+
+            if [ ! -s application-prod.yml ]; then
+              echo "Missing application-prod.yml in $(pwd)."
+              echo "Create it on the server with the production database settings; it is intentionally not uploaded by this workflow."
+              exit 1
+            fi
+
+            if grep -Eq '生产IP|生产数据库账号|生产数据库密码' application-prod.yml; then
+              echo "application-prod.yml still contains the repository placeholder values."
+              echo "Replace them with the production database settings before deploying."
+              exit 1
+            fi
 
             mkdir -p logs
 
-            if [ -f app.pid ] && kill -0 "$(cat app.pid)" 2>/dev/null; then
-              kill "$(cat app.pid)"
-              for _ in $(seq 1 30); do
-                kill -0 "$(cat app.pid)" 2>/dev/null || break
-                sleep 1
-              done
-              if kill -0 "$(cat app.pid)" 2>/dev/null; then
-                echo "Previous application process did not stop."
-                exit 1
-              fi
+            if [ -s app.pid ]; then
+              previous_pid="$(cat app.pid)"
+              case "$previous_pid" in
+                *[!0-9]*|'')
+                  echo "Ignoring invalid PID file: $previous_pid"
+                  ;;
+                *)
+                  if kill -0 "$previous_pid" 2>/dev/null; then
+                    previous_command="$(tr '\0' ' ' < "/proc/$previous_pid/cmdline" 2>/dev/null || true)"
+                    if ! printf '%s' "$previous_command" | grep -q 'app.jar'; then
+                      echo "PID file points to a live non-application process ($previous_pid); refusing to stop it."
+                      exit 1
+                    fi
+                    echo "Stopping previous application process ($previous_pid)."
+                    kill "$previous_pid" || true
+                    for _ in $(seq 1 30); do
+                      kill -0 "$previous_pid" 2>/dev/null || break
+                      sleep 1
+                    done
+                    if kill -0 "$previous_pid" 2>/dev/null; then
+                      echo "Previous application process did not stop."
+                      exit 1
+                    fi
+                  fi
+                  ;;
+              esac
             fi
 
-            nohup java -jar app.jar --spring.profiles.active=prod \
+            nohup "$java_bin" -jar app.jar --spring.profiles.active=prod \
               --spring.config.additional-location=optional:file:./ > logs/app.log 2>&1 &
-            echo $! > app.pid
+            app_pid=$!
+            echo "$app_pid" > app.pid
             sleep 5
 
-            if ! kill -0 "$(cat app.pid)" 2>/dev/null; then
+            if ! kill -0 "$app_pid" 2>/dev/null; then
               echo "Application failed to start."
               tail -n 100 logs/app.log || true
               exit 1
             fi
+
+            echo "Application started successfully (PID: $app_pid)."
