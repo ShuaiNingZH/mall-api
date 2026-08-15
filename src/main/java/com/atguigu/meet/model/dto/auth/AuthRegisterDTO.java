@@ -2,6 +2,7 @@ package com.atguigu.meet.model.dto.auth;
 
 import com.atguigu.meet.model.dto.user.UserBaseDTO;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 /**
@@ -74,4 +75,10 @@ public class AuthRegisterDTO extends UserBaseDTO {
     public String getPhone() {
         return super.getPhone();
     }
+
+    /** 邀请码（必传，8位，区分大小写，数字+字母） */
+    @NotBlank(message = "邀请码不能为空")
+    @Pattern(regexp = "^[A-Za-z0-9]{8}$", message = "邀请码格式不正确")
+    private String inviteCode;
+
 }

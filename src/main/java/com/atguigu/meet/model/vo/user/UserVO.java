@@ -30,6 +30,9 @@ public class UserVO {
 
     private String status;
 
+    /** 邀请人ID */
+    private Long inviterId;
+
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;

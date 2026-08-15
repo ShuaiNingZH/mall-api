@@ -47,6 +47,9 @@ public class SysUser extends Model<SysUser> {
     @TableField(jdbcType = JdbcType.INTEGER)
     private String status = "1";
 
+    /** 邀请人ID（sys_user.id） */
+    private Long inviterId;
+
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;

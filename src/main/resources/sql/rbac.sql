@@ -31,10 +31,46 @@ CREATE TABLE IF NOT EXISTS sys_user (
     avatar      VARCHAR(255) COMMENT '头像图片地址',
     birthday    DATE         COMMENT '生日',
     status      TINYINT      DEFAULT 1 COMMENT '账号状态 0禁用 1正常',
+    inviter_id  BIGINT       COMMENT '邀请人ID(sys_user.id)',
     create_time DATETIME     DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_deleted  TINYINT      DEFAULT 0 COMMENT '逻辑删除 0未删 1已删'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '系统用户表';
+
+-- 0.1 邀请码表（1个用户只能生成1个邀请码，单码最多邀请10人）
+CREATE TABLE IF NOT EXISTS sys_invite_code (
+    id              BIGINT       AUTO_INCREMENT PRIMARY KEY,
+    invite_code     VARCHAR(8)   NOT NULL UNIQUE COMMENT '邀请码(8位,区分大小写,数字+字母)',
+    inviter_id      BIGINT       NOT NULL COMMENT '邀请人ID(生成者)',
+    status          TINYINT      DEFAULT 0 COMMENT '0可用 1手动失效 2名额已满停用',
+    max_invite_num  INT          DEFAULT 10 COMMENT '最大可邀请人数',
+    used_invite_num INT          DEFAULT 0 COMMENT '已邀请注册人数(冗余,仅展示)',
+    expire_time     DATETIME     COMMENT '过期时间(NULL永久有效)',
+    create_time     DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    update_time     DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_deleted      TINYINT      DEFAULT 0 COMMENT '逻辑删除 0未删 1已删',
+    UNIQUE KEY uk_inviter (inviter_id),
+    KEY idx_invite_code (invite_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '邀请码表';
+
+-- 0.2 邀请明细流水表（分佣核心：记录每次邀请注册行为，预留分佣字段）
+CREATE TABLE IF NOT EXISTS sys_invite_record (
+    id                  BIGINT         AUTO_INCREMENT PRIMARY KEY,
+    invite_code         VARCHAR(8)     NOT NULL COMMENT '使用的邀请码',
+    inviter_id          BIGINT         NOT NULL COMMENT '邀请人ID',
+    invitee_id          BIGINT         NOT NULL COMMENT '被邀请人ID(新注册用户)',
+    invitee_phone       VARCHAR(20)    COMMENT '被邀请人手机号(冗余)',
+    status              TINYINT        DEFAULT 1 COMMENT '0已邀请待注册 1已注册 2已取消',
+    commission_amount   DECIMAL(10,2)  DEFAULT 0.00 COMMENT '分佣金额(预留)',
+    commission_status   TINYINT        DEFAULT 0 COMMENT '分佣状态 0待结算 1已结算 2已取消(预留)',
+    settle_time         DATETIME       COMMENT '结算时间(预留)',
+    create_time         DATETIME       DEFAULT CURRENT_TIMESTAMP,
+    update_time         DATETIME       DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_deleted          TINYINT        DEFAULT 0 COMMENT '逻辑删除 0未删 1已删',
+    UNIQUE KEY uk_invitee (invitee_id),
+    KEY idx_inviter (inviter_id),
+    KEY idx_invite_code (invite_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '邀请明细流水表';
 
 -- 1. 角色表（权限分组载体：管理员、普通用户、运营等）
 CREATE TABLE IF NOT EXISTS sys_role (
