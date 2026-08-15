@@ -222,7 +222,7 @@ CREATE TABLE IF NOT EXISTS `t_notice_log` (
 -- =============================================
 
 -- 7. 轮播图表
-CREATE TABLE IF NOT EXISTS `banner` (
+CREATE TABLE IF NOT EXISTS `t_banner` (
     `id`          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID(列表ID)',
     `img_url`     VARCHAR(512)    NOT NULL DEFAULT '' COMMENT '轮播图地址',
     `position`    VARCHAR(32)     NOT NULL DEFAULT 'home' COMMENT '轮播位置：home=首页 seckill=抢购',

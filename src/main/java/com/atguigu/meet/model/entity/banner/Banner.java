@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * 轮播图实体
  */
 @Data
-@TableName("banner")
+@TableName("t_banner")
 public class Banner extends Model<Banner> {
 
     @TableId(type = IdType.AUTO)
