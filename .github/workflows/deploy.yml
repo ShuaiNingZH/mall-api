@@ -33,6 +33,11 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           cache: maven
 
+      # Git may not retain the executable bit when this repository is edited
+      # on Windows. GitHub-hosted runners execute the wrapper on Linux.
+      - name: Make Maven Wrapper executable
+        run: chmod +x mvnw
+
       - name: Build executable JAR
         run: ./mvnw --batch-mode --no-transfer-progress clean package -DskipTests
 
