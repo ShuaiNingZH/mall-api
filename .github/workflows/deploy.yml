@@ -91,12 +91,27 @@ jobs:
           # Keep this enabled until the remote-command failure is diagnosed.
           debug: true
           script: |
-            set -eu
-            cd "${{ secrets.SERVER_TARGET }}"
+            set -u
+            if ! cd "${{ secrets.SERVER_TARGET }}"; then
+              echo "Cannot access the deployment directory. Check SERVER_TARGET and the SSH user's permissions."
+              exit 1
+            fi
+            echo "Deployment directory: $(pwd)"
 
-            command -v java
-            java -version
-            test -f app.jar
+            if ! java_bin="$(command -v java)"; then
+              echo "Java is not available to the non-interactive SSH shell. PATH: $PATH"
+              echo "Add Java's bin directory to the server-wide PATH, then deploy again."
+              exit 1
+            fi
+            echo "Using Java: $java_bin"
+            "$java_bin" -version
+
+            if [ ! -f app.jar ]; then
+              echo "Missing app.jar in $(pwd)."
+              exit 1
+            fi
+
+            set -e
 
             if [ ! -s application-prod.yml ]; then
               echo "Missing application-prod.yml in $(pwd)."
@@ -140,7 +155,7 @@ jobs:
               esac
             fi
 
-            nohup java -jar app.jar --spring.profiles.active=prod \
+            nohup "$java_bin" -jar app.jar --spring.profiles.active=prod \
               --spring.config.additional-location=optional:file:./ > logs/app.log 2>&1 &
             app_pid=$!
             echo "$app_pid" > app.pid
