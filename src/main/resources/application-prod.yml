@@ -1,10 +1,27 @@
 spring:
   datasource:
-    # 生产直接指向已经建好的 meet 数据库，不要空库地址
-    url: jdbc:mysql://生产IP:3306/meet?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull
-    username: 生产数据库账号
-    password: 生产数据库密码
+    url: jdbc:mysql://127.0.0.1:3306/meet?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=UTC
+    username: root
+    password: 435e129494ca4a28
   sql:
+    # 后期在处理
     init:
-      # 核心：生产禁止执行任何初始化SQL
       mode: never
+      # 启动执行建表脚本
+      schema-locations: classpath:sql/init/schema.sql
+      # 启动执行初始数据脚本
+      data-locations: classpath:sql/init/data.sql
+  # Redis 配置
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password:
+      database: 0
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
