@@ -254,3 +254,45 @@ INSERT IGNORE INTO sys_menu(id, parent_id, menu_name, menu_code, perms, type, pa
 -- 给超级管理员分配轮播图菜单/权限
 INSERT IGNORE INTO sys_role_menu(role_id, menu_id)
 SELECT 1, id FROM sys_menu WHERE id IN (20, 21, 22, 23, 24);
+
+-- =============================================
+-- 文件管理模块表：t_file_info
+-- =============================================
+
+-- 8. 文件信息表（上传文件元数据，支持假删除）
+CREATE TABLE IF NOT EXISTS `t_file_info` (
+    `id`             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `url`            VARCHAR(512)    NOT NULL COMMENT '访问URL(完整路径)',
+    `original_name`  VARCHAR(255)    NOT NULL DEFAULT '' COMMENT '原始文件名',
+    `filename`       VARCHAR(255)    NOT NULL DEFAULT '' COMMENT '存储后的文件名',
+    `path`           VARCHAR(512)    NOT NULL DEFAULT '' COMMENT '存储相对路径(含子目录)',
+    `size`           BIGINT          NOT NULL DEFAULT 0 COMMENT '文件大小(字节)',
+    `suffix`         VARCHAR(20)     NOT NULL DEFAULT '' COMMENT '文件后缀(小写,无点)',
+    `biz_type`       VARCHAR(50)     NOT NULL DEFAULT '' COMMENT '业务类型:avatar/goods/document',
+    `platform`       VARCHAR(50)     NOT NULL DEFAULT '' COMMENT '存储平台:local-1/aliyun-oss-1等',
+    `bucket`         VARCHAR(100)    DEFAULT NULL COMMENT '存储桶(OSS/MinIO等)',
+    `base_path`      VARCHAR(512)    DEFAULT NULL COMMENT '存储基础路径',
+    `status`         TINYINT         NOT NULL DEFAULT 1 COMMENT '状态:0-已删除(假删) 1-正常',
+    `is_deleted`     TINYINT         NOT NULL DEFAULT 0 COMMENT '逻辑删除 0未删 1已删',
+    `created_at`     DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '上传时间',
+    `updated_at`     DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `create_by`      BIGINT          DEFAULT NULL COMMENT '上传人ID(管理员id)',
+    `update_by`      BIGINT          DEFAULT NULL COMMENT '更新人ID',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_url` (`url`) COMMENT 'URL唯一,防重复上传入库',
+    KEY `idx_biz_type` (`biz_type`) COMMENT '按业务类型查询索引',
+    KEY `idx_create_by` (`create_by`) COMMENT '按上传人查询索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文件信息表';
+
+-- =============================================
+-- 文件管理模块菜单数据
+-- =============================================
+-- 文件管理菜单 (id 从 30 开始,避免与已有菜单冲突)
+INSERT IGNORE INTO sys_menu(id, parent_id, menu_name, menu_code, perms, type, path, component, icon, sort, visible) VALUES
+(30, 1, '文件管理', 'file',   NULL,                  1, 'file',   'file/index',   'Document', 30, 1),
+(31, 30, '文件上传', NULL,   'file:upload:save',    2, NULL, NULL, NULL, 1, 1),
+(32, 30, '文件删除', NULL,   'file:upload:delete',  2, NULL, NULL, NULL, 2, 1);
+
+-- 给超级管理员分配文件管理菜单/权限
+INSERT IGNORE INTO sys_role_menu(role_id, menu_id)
+SELECT 1, id FROM sys_menu WHERE id IN (30, 31, 32);

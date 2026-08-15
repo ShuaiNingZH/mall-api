@@ -16,4 +16,12 @@ public interface FileService {
      * @return 最终访问路径
      */
     Response upload(MultipartFile file, String bizType);
+
+    /**
+     * 删除文件(假删除,仅更新 t_file_info 状态,物理文件保留)
+     *
+     * @param url 文件访问URL
+     * @return 删除结果
+     */
+    Response delete(String url);
 }

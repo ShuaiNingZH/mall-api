@@ -161,6 +161,12 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
+        <!-- x-file-storage：一行代码搞定文件存储（本地/OSS/MinIO/COS/Kodo等） -->
+        <dependency>
+            <groupId>org.dromara.x-file-storage</groupId>
+            <artifactId>x-file-storage-spring</artifactId>
+            <version>2.3.0</version>
+        </dependency>
 
     </dependencies>
 
