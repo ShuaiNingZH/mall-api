@@ -1,0 +1,117 @@
+name: Deploy Spring Boot application
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer commit supersedes any queued or in-progress deployment for this branch.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  JAVA_VERSION: '17'
+  ARTIFACT_NAME: app.jar
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+
+      - name: Build executable JAR
+        run: ./mvnw --batch-mode --no-transfer-progress clean package -DskipTests
+
+      # Ship only the executable Spring Boot JAR. Runtime configuration and
+      # logs remain on the server and are therefore not overwritten by rsync.
+      - name: Prepare deployment artifact
+        run: |
+          mkdir -p deploy
+          cp target/meet-back-*.jar "deploy/${ARTIFACT_NAME}"
+
+      - name: Upload deployment artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: spring-boot-app
+          path: deploy/
+          if-no-files-found: error
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download deployment artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: spring-boot-app
+          path: deploy/
+
+      # Repository secrets required:
+      # SERVER_HOST, SERVER_PORT, SERVER_USER, SERVER_TARGET, SSH_PRIVATE_KEY
+      - name: Upload JAR to server
+        uses: burnett01/rsync-deployments@v8
+        with:
+          switches: -avz
+          path: deploy/
+          remote_path: ${{ secrets.SERVER_TARGET }}
+          remote_host: ${{ secrets.SERVER_HOST }}
+          remote_port: ${{ secrets.SERVER_PORT }}
+          remote_user: ${{ secrets.SERVER_USER }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # The target directory must be writable by SERVER_USER and the host must
+      # have Java 17 (or a compatible newer JRE) available as `java`.
+      - name: Restart Spring Boot application
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          port: ${{ secrets.SERVER_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -eu
+            cd "${{ secrets.SERVER_TARGET }}"
+
+            command -v java
+            java -version
+            test -f app.jar
+
+            mkdir -p logs
+
+            if [ -f app.pid ] && kill -0 "$(cat app.pid)" 2>/dev/null; then
+              kill "$(cat app.pid)"
+              for _ in $(seq 1 30); do
+                kill -0 "$(cat app.pid)" 2>/dev/null || break
+                sleep 1
+              done
+              if kill -0 "$(cat app.pid)" 2>/dev/null; then
+                echo "Previous application process did not stop."
+                exit 1
+              fi
+            fi
+
+            nohup java -jar app.jar --spring.profiles.active=prod \
+              --spring.config.additional-location=optional:file:./ > logs/app.log 2>&1 &
+            echo $! > app.pid
+            sleep 5
+
+            if ! kill -0 "$(cat app.pid)" 2>/dev/null; then
+              echo "Application failed to start."
+              tail -n 100 logs/app.log || true
+              exit 1
+            fi
