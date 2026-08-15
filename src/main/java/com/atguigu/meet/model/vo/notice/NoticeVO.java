@@ -1,5 +1,6 @@
 package com.atguigu.meet.model.vo.notice;
 
+import com.atguigu.meet.model.vo.user.UserVO;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,11 @@ public class NoticeVO {
     private LocalDateTime updateTime;
     private Long createBy;
     private Long updateBy;
+
+    /** 创建人完整信息 */
+    private UserVO creator;
+    /** 更新人完整信息 */
+    private UserVO updater;
 
     /** 阅读次数（详情接口聚合返回） */
     private Long readCount;

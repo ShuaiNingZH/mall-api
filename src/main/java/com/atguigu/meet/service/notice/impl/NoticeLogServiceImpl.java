@@ -31,6 +31,12 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
         if (parameter.getUserId() != null) {
             wrapper.eq(NoticeLog::getUserId, parameter.getUserId());
         }
+        if (parameter.getStartTime() != null) {
+            wrapper.ge(NoticeLog::getCreateTime, parameter.getStartTime());
+        }
+        if (parameter.getEndTime() != null) {
+            wrapper.le(NoticeLog::getCreateTime, parameter.getEndTime());
+        }
         wrapper.orderByDesc(NoticeLog::getReadTime);
 
         IPage<NoticeLog> page = new Page<>(parameter.getPageNum(), parameter.getPageSize());

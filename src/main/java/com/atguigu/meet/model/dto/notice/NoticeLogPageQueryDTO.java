@@ -3,6 +3,8 @@ package com.atguigu.meet.model.dto.notice;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 /**
  * 公告阅读日志分页查询DTO
  */
@@ -17,4 +19,8 @@ public class NoticeLogPageQueryDTO {
     private Long noticeId;
     /** 用户ID(sys_user.id) */
     private Long userId;
+    /** 创建开始时间（含） */
+    private LocalDateTime startTime;
+    /** 创建结束时间（含） */
+    private LocalDateTime endTime;
 }
