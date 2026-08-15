@@ -68,6 +68,7 @@ jobs:
 
       # Repository secrets required:
       # SERVER_HOST, SERVER_PORT, SERVER_USER, SERVER_TARGET, SSH_PRIVATE_KEY
+      # Set SERVER_JAVA_BIN when Java is not on the SSH user's default PATH.
       - name: Upload JAR to server
         uses: burnett01/rsync-deployments@v8
         with:
@@ -90,6 +91,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           # Keep this enabled until the remote-command failure is diagnosed.
           debug: true
+          # Allocate a pseudo-terminal to match a Termius session more closely.
+          request_pty: true
           script: |
             set -u
             if ! cd "${{ secrets.SERVER_TARGET }}"; then
@@ -98,9 +101,15 @@ jobs:
             fi
             echo "Deployment directory: $(pwd)"
 
-            if ! java_bin="$(command -v java)"; then
+            java_bin="${{ secrets.SERVER_JAVA_BIN }}"
+            if [ -n "$java_bin" ]; then
+              if [ ! -x "$java_bin" ]; then
+                echo "SERVER_JAVA_BIN is not an executable file: $java_bin"
+                exit 1
+              fi
+            elif ! java_bin="$(command -v java)"; then
               echo "Java is not available to the non-interactive SSH shell. PATH: $PATH"
-              echo "Add Java's bin directory to the server-wide PATH, then deploy again."
+              echo "Set SERVER_JAVA_BIN to the absolute path of the Java 17 executable."
               exit 1
             fi
             echo "Using Java: $java_bin"
