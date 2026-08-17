@@ -1,7 +1,7 @@
 package com.atguigu.meet;
 
-import com.atguigu.meet.mapper.user.UserMapper;
-import com.atguigu.meet.model.entity.user.SysUser;
+import com.atguigu.meet.mapper.permission.user.UserMapper;
+import com.atguigu.meet.model.entity.permission.user.SysUser;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
