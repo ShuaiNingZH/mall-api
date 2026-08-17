@@ -1,12 +1,12 @@
-package com.atguigu.meet.service.invite.impl;
+package com.atguigu.meet.service.permission.invite.impl;
 
 import com.atguigu.meet.common.Response;
 import com.atguigu.meet.exception.BusinessException;
-import com.atguigu.meet.mapper.system.SysInviteCodeMapper;
-import com.atguigu.meet.mapper.system.SysInviteRecordMapper;
-import com.atguigu.meet.model.entity.system.SysInviteCode;
-import com.atguigu.meet.model.entity.system.SysInviteRecord;
-import com.atguigu.meet.service.invite.InviteCodeService;
+import com.atguigu.meet.mapper.permission.invite.SysInviteCodeMapper;
+import com.atguigu.meet.mapper.permission.invite.SysInviteRecordMapper;
+import com.atguigu.meet.model.entity.permission.invite.SysInviteCode;
+import com.atguigu.meet.model.entity.permission.invite.SysInviteRecord;
+import com.atguigu.meet.service.permission.invite.InviteCodeService;
 import com.atguigu.meet.utils.InviteCodeUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;

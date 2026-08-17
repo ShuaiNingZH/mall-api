@@ -1,6 +1,6 @@
-package com.atguigu.meet.mapper.system;
+package com.atguigu.meet.mapper.permission.invite;
 
-import com.atguigu.meet.model.entity.system.SysInviteRecord;
+import com.atguigu.meet.model.entity.permission.invite.SysInviteRecord;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

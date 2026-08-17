@@ -1,4 +1,4 @@
-package com.atguigu.meet.model.entity.system;
+package com.atguigu.meet.model.entity.permission.invite;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

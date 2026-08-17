@@ -1,8 +1,8 @@
-package com.atguigu.meet.service.invite;
+package com.atguigu.meet.service.permission.invite;
 
 import com.atguigu.meet.common.Response;
-import com.atguigu.meet.model.entity.system.SysInviteCode;
-import com.atguigu.meet.model.entity.system.SysInviteRecord;
+import com.atguigu.meet.model.entity.permission.invite.SysInviteCode;
+import com.atguigu.meet.model.entity.permission.invite.SysInviteRecord;
 
 import java.util.List;
 

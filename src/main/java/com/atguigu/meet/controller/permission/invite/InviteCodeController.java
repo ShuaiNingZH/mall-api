@@ -1,7 +1,7 @@
-package com.atguigu.meet.controller.invite;
+package com.atguigu.meet.controller.permission.invite;
 
 import com.atguigu.meet.common.Response;
-import com.atguigu.meet.service.invite.InviteCodeService;
+import com.atguigu.meet.service.permission.invite.InviteCodeService;
 import com.atguigu.meet.utils.AdminContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
