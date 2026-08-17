@@ -107,4 +107,19 @@ public final class PermissionConst {
     public static final String FILE_DOWNLOAD = "file:download:get";
     /** 文件删除 */
     public static final String FILE_DELETE = "file:upload:delete";
+
+    // ==========================================
+    // 商品管理 (sys:goods:xxx)
+    // 对应 sys_menu: 商品管理菜单 -> 按钮
+    // ==========================================
+    /** 商品查询 */
+    public static final String GOODS_QUERY = "sys:goods:query";
+    /** 商品新增 */
+    public static final String GOODS_ADD = "sys:goods:add";
+    /** 商品修改 */
+    public static final String GOODS_UPDATE = "sys:goods:update";
+    /** 商品删除 */
+    public static final String GOODS_DELETE = "sys:goods:delete";
+    /** 商品上下架 */
+    public static final String GOODS_SHELF = "sys:goods:shelf";
 }

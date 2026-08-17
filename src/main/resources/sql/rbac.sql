@@ -297,3 +297,60 @@ INSERT IGNORE INTO sys_menu(id, parent_id, menu_name, menu_code, perms, type, pa
 -- 给超级管理员分配文件管理菜单/权限
 INSERT IGNORE INTO sys_role_menu(role_id, menu_id)
 SELECT 1, id FROM sys_menu WHERE id IN (30, 31, 32);
+
+-- =============================================
+-- 商品模块表：t_goods / t_goods_operate_log
+-- =============================================
+
+-- 9. 商品表
+-- 注：原 SQL 中 is_deleted 使用 DATETIME，且 idx_deleted_at 引用了不存在的 deleted_at 列
+--     此处对齐项目规范：is_deleted 改为 TINYINT DEFAULT 0 配合 @TableLogic，索引同步修正
+CREATE TABLE IF NOT EXISTS `t_goods` (
+    `id`           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `goods_name`   VARCHAR(255)    NOT NULL DEFAULT '' COMMENT '商品名称',
+    `goods_sn`     VARCHAR(64)     NOT NULL DEFAULT '' COMMENT '商品货号/编码，唯一',
+    `goods_thumb`  VARCHAR(512)    NOT NULL DEFAULT '' COMMENT '商品缩略图URL',
+    `price`        DECIMAL(12,2)   NOT NULL DEFAULT 0.00 COMMENT '商品售价',
+    `stock`        INT UNSIGNED    NOT NULL DEFAULT 0 COMMENT '库存数量',
+    `sales`        INT UNSIGNED    NOT NULL DEFAULT 0 COMMENT '销量',
+    `status`       TINYINT         NOT NULL DEFAULT 0 COMMENT '商品状态 0=下架 1=已上架',
+    `is_deleted`   TINYINT         NOT NULL DEFAULT 0 COMMENT '逻辑删除 0未删 1已删',
+    `create_time`  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '添加时间',
+    `update_time`  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `create_by`    BIGINT          DEFAULT NULL COMMENT '创建人ID(管理员id)',
+    `update_by`    BIGINT          DEFAULT NULL COMMENT '更新人ID',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_goods_sn` (`goods_sn`) COMMENT '货号唯一索引',
+    KEY `idx_status_deleted` (`status`, `is_deleted`) COMMENT '查询已上架未删除商品联合索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品表';
+
+-- 10. 商品操作日志表（记录新增/编辑/删除/上下架行为，content 存变更内容JSON）
+CREATE TABLE IF NOT EXISTS `t_goods_operate_log` (
+    `id`           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '日志ID',
+    `goods_id`     BIGINT UNSIGNED NOT NULL COMMENT '商品ID(t_goods.id)',
+    `admin_id`     BIGINT UNSIGNED NOT NULL COMMENT '操作管理员ID(sys_user.id)',
+    `operate_type` TINYINT         NOT NULL COMMENT '操作类型 1新增 2编辑 3删除 4上下架',
+    `content`      TEXT            DEFAULT NULL COMMENT '变更内容JSON',
+    `create_time`  DATETIME        DEFAULT CURRENT_TIMESTAMP COMMENT '操作时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_goods_id` (`goods_id`) COMMENT '按商品查询操作记录索引',
+    KEY `idx_admin_id` (`admin_id`) COMMENT '按操作人查询索引',
+    CONSTRAINT `fk_goods_log_goods` FOREIGN KEY (`goods_id`) REFERENCES `t_goods` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `fk_goods_log_admin` FOREIGN KEY (`admin_id`) REFERENCES `sys_user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品操作日志表';
+
+-- =============================================
+-- 商品模块菜单数据
+-- =============================================
+-- 商品管理菜单 (id 从 40 开始,避免与已有菜单冲突)
+INSERT IGNORE INTO sys_menu(id, parent_id, menu_name, menu_code, perms, type, path, component_path, icon, sort, visible) VALUES
+(40, 1,  '商品管理',   'goods', NULL,                1, 'goods',  'goods/index',  'Goods',  40, 1),
+(41, 40, '商品查询',   NULL,   'sys:goods:query',   2, NULL, NULL, NULL, 1, 1),
+(42, 40, '商品新增',   NULL,   'sys:goods:add',     2, NULL, NULL, NULL, 2, 1),
+(43, 40, '商品修改',   NULL,   'sys:goods:update',  2, NULL, NULL, NULL, 3, 1),
+(44, 40, '商品删除',   NULL,   'sys:goods:delete',  2, NULL, NULL, NULL, 4, 1),
+(45, 40, '商品上下架', NULL,   'sys:goods:shelf',   2, NULL, NULL, NULL, 5, 1);
+
+-- 给超级管理员分配商品管理菜单/权限
+INSERT IGNORE INTO sys_role_menu(role_id, menu_id)
+SELECT 1, id FROM sys_menu WHERE id IN (40, 41, 42, 43, 44, 45);
