@@ -3,7 +3,7 @@ package com.atguigu.meet.service.auth.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.atguigu.meet.config.PermissionCacheProperties;
-import com.atguigu.meet.mapper.system.SysMenuMapper;
+import com.atguigu.meet.mapper.permission.menu.SysMenuMapper;
 import com.atguigu.meet.service.auth.PermissionCacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

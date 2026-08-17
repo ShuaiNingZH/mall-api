@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.atguigu.meet.mapper.system.SysRoleMenuMapper">
+<mapper namespace="com.atguigu.meet.mapper.permission.role.SysRoleMenuMapper">
 
     <!-- 根据角色ID查询菜单ID列表 -->
     <select id="selectMenuIdsByRoleId" resultType="java.lang.Long">

@@ -2,15 +2,15 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.atguigu.meet.mapper.user.UserMapper">
-    <select id="selectByAccount" resultType="com.atguigu.meet.model.entity.user.SysUser">
+<mapper namespace="com.atguigu.meet.mapper.permission.user.UserMapper">
+    <select id="selectByAccount" resultType="com.atguigu.meet.model.entity.permission.user.SysUser">
         SELECT *
         FROM sys_user
         WHERE username = #{account} OR phone = #{account}
     </select>
 
     <resultMap id="UserOrderResultMap"
-               type="com.atguigu.meet.model.vo.user.UserOrderVO"
+               type="com.atguigu.meet.model.vo.permission.user.UserOrderVO"
     >
         <id column="u_id" property="userId"/>
         <result column="username" property="username"/>

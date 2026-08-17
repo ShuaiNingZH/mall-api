@@ -1,6 +1,6 @@
 package com.atguigu.meet.model.dto.auth;
 
-import com.atguigu.meet.model.dto.user.UserBaseDTO;
+import com.atguigu.meet.model.dto.permission.user.UserBaseDTO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;

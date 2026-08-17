@@ -1,7 +1,7 @@
 package com.atguigu.meet.filter;
 
 import com.atguigu.meet.config.JwtSecurityProperties;
-import com.atguigu.meet.model.entity.user.AdminUser;
+import com.atguigu.meet.model.entity.permission.user.AdminUser;
 import com.atguigu.meet.service.auth.PermissionCacheService;
 import com.atguigu.meet.utils.AdminContext;
 import com.atguigu.meet.utils.JwtUtil;
@@ -134,8 +134,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
-
-
 
 
 

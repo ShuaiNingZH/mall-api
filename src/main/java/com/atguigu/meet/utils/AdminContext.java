@@ -1,6 +1,6 @@
 package com.atguigu.meet.utils;
 
-import com.atguigu.meet.model.entity.user.AdminUser;
+import com.atguigu.meet.model.entity.permission.user.AdminUser;
 
 import java.util.Collections;
 import java.util.Set;

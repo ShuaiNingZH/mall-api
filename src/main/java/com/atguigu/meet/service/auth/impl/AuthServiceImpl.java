@@ -2,13 +2,13 @@ package com.atguigu.meet.service.auth.impl;
 
 import com.atguigu.meet.common.Response;
 import com.atguigu.meet.exception.BusinessException;
-import com.atguigu.meet.mapper.user.UserMapper;
-import com.atguigu.meet.mapper.system.SysMenuMapper;
+import com.atguigu.meet.mapper.permission.user.UserMapper;
+import com.atguigu.meet.mapper.permission.menu.SysMenuMapper;
 import com.atguigu.meet.model.dto.auth.AuthRegisterDTO;
 import com.atguigu.meet.model.dto.auth.AuthLoginDTO;
 import com.atguigu.meet.model.entity.system.SysInviteCode;
-import com.atguigu.meet.model.entity.user.SysUser;
-import com.atguigu.meet.model.vo.user.UserVO;
+import com.atguigu.meet.model.entity.permission.user.SysUser;
+import com.atguigu.meet.model.vo.permission.user.UserVO;
 import com.atguigu.meet.service.auth.AuthService;
 import com.atguigu.meet.service.invite.InviteCodeService;
 import com.atguigu.meet.utils.JwtUtil;
