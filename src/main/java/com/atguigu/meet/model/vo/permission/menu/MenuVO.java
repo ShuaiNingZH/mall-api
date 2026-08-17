@@ -18,7 +18,7 @@ public class MenuVO {
     private Integer type;
     private String path;
     private String routeName;
-    private String component;
+    private String componentPath;
     private String icon;
     private Integer sort;
     private Integer visible;

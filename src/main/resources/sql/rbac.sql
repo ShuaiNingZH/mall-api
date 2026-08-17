@@ -106,7 +106,7 @@ CREATE TABLE IF NOT EXISTS sys_menu (
     type         TINYINT      NOT NULL DEFAULT 1 COMMENT '类型 0目录 1菜单 2按钮权限',
     path         VARCHAR(200) COMMENT '路由路径(目录/菜单)',
     route_name   VARCHAR(100) COMMENT '路由名称(前端keep-alive匹配用,对应routeName)',
-    component    VARCHAR(200) COMMENT '前端组件路径(菜单,对应componentPath)',
+    component_path VARCHAR(200) COMMENT '前端组件路径(菜单,对应componentPath)',
     icon         VARCHAR(100) COMMENT '图标',
     sort         INT          DEFAULT 0 COMMENT '排序(数字越小越靠前)',
     visible      TINYINT      DEFAULT 1 COMMENT '是否可见 1可见 0隐藏(语义等价hideInMenu,反向)',
@@ -139,7 +139,8 @@ INSERT IGNORE INTO sys_role(role_name, role_code) VALUES('超级管理员', 'SUP
 
 -- 菜单数据：目录 -> 菜单 -> 按钮 三级结构
 -- 系统管理目录
-INSERT IGNORE INTO sys_menu(id, parent_id, menu_name, menu_code, perms, type, path, component, icon, sort, visible) VALUES
+INSERT IGNORE INTO sys_menu(id, parent_id, menu_name, menu_code, perms, type, path, component_path, icon, sort, visible) VALUES
+-- 系统管理目录
 (1, 0, '系统管理', 'sys',  NULL,        0, '/sys',       NULL,                     'Setting', 10, 1),
 -- 用户管理菜单
 (2, 1, '用户管理', 'user', NULL,        1, 'user',       'sys/user/index',         'User',     10, 1),
@@ -243,7 +244,7 @@ CREATE TABLE IF NOT EXISTS `t_banner` (
 -- 轮播图模块菜单数据
 -- =============================================
 -- 轮播图管理菜单 (假设 id 从 20 开始，避免与已有菜单冲突)
-INSERT IGNORE INTO sys_menu(id, parent_id, menu_name, menu_code, perms, type, path, component, icon, sort, visible) VALUES
+INSERT IGNORE INTO sys_menu(id, parent_id, menu_name, menu_code, perms, type, path, component_path, icon, sort, visible) VALUES
 -- 轮播图管理菜单（如果系统管理目录id=1下没有轮播图菜单，可放在运营管理目录或独立目录，这里放在系统管理下做示例，实际可根据前端路由调整parent_id）
 (20, 1, '轮播图管理', 'banner', NULL,              1, 'banner',       'banner/index',          'Picture',  20, 1),
 (21, 20, '轮播图查询', NULL,   'sys:banner:query',  2, NULL, NULL, NULL, 1, 1),
@@ -288,7 +289,7 @@ CREATE TABLE IF NOT EXISTS `t_file_info` (
 -- 文件管理模块菜单数据
 -- =============================================
 -- 文件管理菜单 (id 从 30 开始,避免与已有菜单冲突)
-INSERT IGNORE INTO sys_menu(id, parent_id, menu_name, menu_code, perms, type, path, component, icon, sort, visible) VALUES
+INSERT IGNORE INTO sys_menu(id, parent_id, menu_name, menu_code, perms, type, path, component_path, icon, sort, visible) VALUES
 (30, 1, '文件管理', 'file',   NULL,                  1, 'file',   'file/index',   'Document', 30, 1),
 (31, 30, '文件上传', NULL,   'file:upload:save',    2, NULL, NULL, NULL, 1, 1),
 (32, 30, '文件删除', NULL,   'file:upload:delete',  2, NULL, NULL, NULL, 2, 1);

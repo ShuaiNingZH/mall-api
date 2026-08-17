@@ -29,6 +29,12 @@ public interface UserService {
 
     Response getUserWithOrders(String phone, AdminUser loginAdmin);
 
+    /** 获取当前登录用户信息 */
+    Response getCurrentUserInfo();
+
+    /** 获取当前登录用户可访问的菜单树 */
+    Response getCurrentUserMenus();
+
     /*List<Map<String, Object>> mapList();
 
     List<Object> idList();*/

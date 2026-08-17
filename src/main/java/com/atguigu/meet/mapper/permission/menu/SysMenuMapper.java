@@ -21,4 +21,9 @@ public interface SysMenuMapper extends BaseMapper<SysMenu> {
      * 根据 userId 查询其拥有的全部角色编码
      */
     List<String> selectRoleCodesByUserId(@Param("userId") Long userId);
+
+    /**
+     * 根据 userId 查询所有可访问菜单(含目录、菜单、按钮)
+     */
+    List<SysMenu> selectMenusByUserId(@Param("userId") Long userId);
 }

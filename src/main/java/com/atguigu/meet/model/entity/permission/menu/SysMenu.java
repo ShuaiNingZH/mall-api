@@ -44,7 +44,7 @@ public class SysMenu extends Model<SysMenu> {
     private String routeName;
 
     /** 前端组件路径(菜单) */
-    private String component;
+    private String componentPath;
 
     private String icon;
 

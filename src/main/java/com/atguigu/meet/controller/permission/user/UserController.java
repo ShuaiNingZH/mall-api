@@ -63,4 +63,20 @@ public class UserController {
     ) {
         return userService.uploadUserAvatar(file, userId);
     }
+
+    /**
+     * 当前登录用户的信息
+     */
+    @GetMapping("user-info")
+    public Response getCurrentUserInfo() {
+        return userService.getCurrentUserInfo();
+    }
+
+    /**
+     * 当前登录用户的菜单
+     */
+    @GetMapping("user-menus")
+    public Response getCurrentUserMenus() {
+        return userService.getCurrentUserMenus();
+    }
 }

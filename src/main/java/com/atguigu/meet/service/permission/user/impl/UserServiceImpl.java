@@ -2,17 +2,21 @@ package com.atguigu.meet.service.permission.user.impl;
 
 import com.atguigu.meet.common.Response;
 import com.atguigu.meet.exception.BusinessException;
+import com.atguigu.meet.mapper.permission.menu.SysMenuMapper;
 import com.atguigu.meet.mapper.permission.user.UserMapper;
 import com.atguigu.meet.model.dto.permission.user.UserDeleteDTO;
 import com.atguigu.meet.model.dto.permission.user.UserPageQueryDTO;
 import com.atguigu.meet.model.dto.permission.user.UserUpdateDTO;
+import com.atguigu.meet.model.entity.permission.menu.SysMenu;
 import com.atguigu.meet.model.entity.permission.user.AdminUser;
 import com.atguigu.meet.model.entity.permission.user.SysUser;
 import com.atguigu.meet.model.vo.PageResultVO;
+import com.atguigu.meet.model.vo.permission.menu.MenuVO;
 import com.atguigu.meet.model.vo.permission.user.UserOrderVO;
 import com.atguigu.meet.model.vo.permission.user.UserVO;
 import com.atguigu.meet.service.file.FileService;
 import com.atguigu.meet.service.permission.user.UserService;
+import com.atguigu.meet.utils.AdminContext;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -32,6 +36,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -48,6 +53,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private SysMenuMapper sysMenuMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class) // 所有异常都回滚，保证原子性
@@ -205,6 +213,69 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         } catch (RuntimeException e) {
             throw new BusinessException(e.getMessage());
         }
+    }
+
+    @Override
+    public Response getCurrentUserInfo() {
+        AdminUser currentUser = AdminContext.get();
+        if (currentUser == null) {
+            return Response.fail(401, "未登录");
+        }
+        SysUser user = userMapper.selectById(currentUser.getUserId());
+        if (user == null) {
+            return Response.fail(404, "用户不存在");
+        }
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(user, userVO);
+        return Response.ok(userVO);
+    }
+
+    @Override
+    public Response getCurrentUserMenus() {
+        AdminUser currentUser = AdminContext.get();
+        if (currentUser == null) {
+            return Response.fail(401, "未登录");
+        }
+        Long userId = currentUser.getUserId();
+        Set<String> userPermissions = currentUser.getPermissions();
+
+        List<SysMenu> allMenus = sysMenuMapper.selectMenusByUserId(userId);
+        List<MenuVO> menuTree = filterMenuTree(buildMenuTree(allMenus, 0L), userPermissions);
+        return Response.ok(menuTree);
+    }
+
+    private List<MenuVO> buildMenuTree(List<SysMenu> allMenus, Long parentId) {
+        return allMenus.stream()
+                .filter(m -> parentId.equals(m.getParentId()))
+                .map(m -> {
+                    MenuVO vo = new MenuVO();
+                    BeanUtils.copyProperties(m, vo);
+                    vo.setChildren(buildMenuTree(allMenus, m.getId()));
+                    return vo;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private List<MenuVO> filterMenuTree(List<MenuVO> tree, Set<String> userPermissions) {
+        List<MenuVO> result = new ArrayList<>();
+        for (MenuVO menu : tree) {
+            if (menu.getType() == 2) {
+                if (userPermissions.contains(menu.getPerms())) {
+                    result.add(menu);
+                }
+            } else {
+                List<MenuVO> filteredChildren = filterMenuTree(menu.getChildren(), userPermissions);
+                menu.setChildren(filteredChildren);
+                if (menu.getType() == 0 || menu.getType() == 1) {
+                    if (!filteredChildren.isEmpty()) {
+                        result.add(menu);
+                    } else if (menu.getType() == 1 && (menu.getPath() != null && !menu.getPath().isEmpty())) {
+                        result.add(menu);
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     /*public Response exportAllUser() {
