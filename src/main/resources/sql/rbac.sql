@@ -346,11 +346,11 @@ CREATE TABLE IF NOT EXISTS `t_goods_operate_log` (
 -- 商品管理菜单 (id 从 40 开始,避免与已有菜单冲突)
 INSERT IGNORE INTO sys_menu(id, parent_id, name, menu_code, perm, type, path, component_path, icon, sort, visible) VALUES
 (40, 1,  '商品管理',   'goods', NULL,                1, 'goods',  'goods/index',  'Goods',  40, 1),
-(41, 40, '商品查询',   NULL,   'sys:goods:query',   2, NULL, NULL, NULL, 1, 1),
-(42, 40, '商品新增',   NULL,   'sys:goods:add',     2, NULL, NULL, NULL, 2, 1),
-(43, 40, '商品修改',   NULL,   'sys:goods:update',  2, NULL, NULL, NULL, 3, 1),
-(44, 40, '商品删除',   NULL,   'sys:goods:delete',  2, NULL, NULL, NULL, 4, 1),
-(45, 40, '商品上下架', NULL,   'sys:goods:shelf',   2, NULL, NULL, NULL, 5, 1);
+(41, 40, '商品查询',   NULL,   'goods:list:query',   2, NULL, NULL, NULL, 1, 1),
+(42, 40, '商品新增',   NULL,   'goods:list:add',     2, NULL, NULL, NULL, 2, 1),
+(43, 40, '商品修改',   NULL,   'goods:list:update',   2, NULL, NULL, NULL, 3, 1),
+(44, 40, '商品删除',   NULL,   'goods:list:delete',   2, NULL, NULL, NULL, 4, 1),
+(45, 40, '商品上下架', NULL,   'goods:list:shelf',    2, NULL, NULL, NULL, 5, 1);
 
 -- 给超级管理员分配商品管理菜单/权限
 INSERT IGNORE INTO sys_role_menu(role_id, menu_id)

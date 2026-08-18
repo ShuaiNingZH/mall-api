@@ -109,17 +109,18 @@ public final class PermissionConst {
     public static final String FILE_DELETE = "file:upload:delete";
 
     // ==========================================
-    // 商品管理 (sys:goods:xxx)
+    // 商品管理 (goods:list:xxx)
     // 对应 sys_menu: 商品管理菜单 -> 按钮
+    // 模块=goods，页面=list（controller.goods.list）
     // ==========================================
     /** 商品查询 */
-    public static final String GOODS_QUERY = "sys:goods:query";
+    public static final String GOODS_QUERY = "goods:list:query";
     /** 商品新增 */
-    public static final String GOODS_ADD = "sys:goods:add";
+    public static final String GOODS_ADD = "goods:list:add";
     /** 商品修改 */
-    public static final String GOODS_UPDATE = "sys:goods:update";
+    public static final String GOODS_UPDATE = "goods:list:update";
     /** 商品删除 */
-    public static final String GOODS_DELETE = "sys:goods:delete";
+    public static final String GOODS_DELETE = "goods:list:delete";
     /** 商品上下架 */
-    public static final String GOODS_SHELF = "sys:goods:shelf";
+    public static final String GOODS_SHELF = "goods:list:shelf";
 }
