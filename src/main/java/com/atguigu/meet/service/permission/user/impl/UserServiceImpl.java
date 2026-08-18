@@ -269,26 +269,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         Long userId = currentUser.getUserId();
         Set<String> userPermissions = currentUser.getPermissions();
 
-        // 超级管理员获取所有菜单（不过滤）
         Set<String> roleCodes = currentUser.getRoleCodes();
         boolean isSuperAdmin = roleCodes != null && roleCodes.contains(PermissionConst.ROLE_SUPER_ADMIN);
 
-        List<SysMenu> allMenus;
+        // 查询所有启用的菜单（确保包含父级菜单，保证树形结构完整）
+        LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysMenu::getStatus, 1)
+                .eq(SysMenu::getIsDeleted, 0)
+                .orderByAsc(SysMenu::getSort);
+        List<SysMenu> allMenus = sysMenuMapper.selectList(wrapper);
+        log.info("[菜单] 查询所有菜单，userId={}, 菜单数={}", userId, allMenus.size());
+
         if (isSuperAdmin) {
-            // 超级管理员直接查询所有启用的菜单
-            LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(SysMenu::getStatus, 1)
-                    .eq(SysMenu::getIsDeleted, 0)
-                    .orderByAsc(SysMenu::getSort);
-            allMenus = sysMenuMapper.selectList(wrapper);
-            log.info("[菜单] 超级管理员获取所有菜单，userId={}, 菜单数={}", userId, allMenus.size());
-            // 超级管理员直接返回完整菜单树，不过滤
             List<MenuVO> menuTree = buildMenuTree(allMenus, 0L);
             return Response.ok(menuTree);
         }
 
-        allMenus = sysMenuMapper.selectMenusByUserId(userId);
-        List<MenuVO> menuTree = filterMenuTree(buildMenuTree(allMenus, 0L), userPermissions);
+        // 获取用户有权限的菜单ID集合（通过角色-菜单关联）
+        List<SysMenu> authorizedMenus = sysMenuMapper.selectMenusByUserId(userId);
+        Set<Long> authorizedMenuIds = authorizedMenus.stream()
+                .map(SysMenu::getId)
+                .collect(Collectors.toSet());
+        log.info("[菜单] 用户授权菜单ID，userId={}, menuIds={}", userId, authorizedMenuIds);
+
+        // 构建完整菜单树后按权限过滤
+        List<MenuVO> menuTree = filterMenuTree(buildMenuTree(allMenus, 0L), authorizedMenuIds, userPermissions);
+        log.info("[菜单] 普通用户菜单树，userId={}, menuTree={}", userId, menuTree);
         return Response.ok(menuTree);
     }
 
@@ -304,22 +310,35 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
                 .collect(Collectors.toList());
     }
 
-    private List<MenuVO> filterMenuTree(List<MenuVO> tree, Set<String> userPermissions) {
+    /**
+     * 按权限过滤菜单树
+     * <ul>
+     *   <li>type=0 目录：有子菜单保留时自身才保留</li>
+     *   <li>type=1 菜单：必须在 authorizedMenuIds 中才保留</li>
+     *   <li>type=2 按钮：必须在 userPermissions 中才保留</li>
+     * </ul>
+     */
+    private List<MenuVO> filterMenuTree(List<MenuVO> tree, Set<Long> authorizedMenuIds, Set<String> userPermissions) {
         List<MenuVO> result = new ArrayList<>();
         for (MenuVO menu : tree) {
             if (menu.getType() == 2) {
-                if (userPermissions.contains(menu.getPerm())) {
+                // 按钮：通过 perm 字段匹配（当前无按钮级权限时不返回）
+                if (userPermissions != null && userPermissions.contains(menu.getPerm())) {
+                    result.add(menu);
+                }
+            } else if (menu.getType() == 1) {
+                // 菜单：必须在用户授权菜单ID中
+                if (authorizedMenuIds.contains(menu.getId())) {
+                    List<MenuVO> filteredChildren = filterMenuTree(menu.getChildren(), authorizedMenuIds, userPermissions);
+                    menu.setChildren(filteredChildren);
                     result.add(menu);
                 }
             } else {
-                List<MenuVO> filteredChildren = filterMenuTree(menu.getChildren(), userPermissions);
+                // 目录(type=0)：子菜单有保留则自身保留
+                List<MenuVO> filteredChildren = filterMenuTree(menu.getChildren(), authorizedMenuIds, userPermissions);
                 menu.setChildren(filteredChildren);
-                if (menu.getType() == 0 || menu.getType() == 1) {
-                    if (!filteredChildren.isEmpty()) {
-                        result.add(menu);
-                    } else if (menu.getType() == 1 && (menu.getPath() != null && !menu.getPath().isEmpty())) {
-                        result.add(menu);
-                    }
+                if (!filteredChildren.isEmpty()) {
+                    result.add(menu);
                 }
             }
         }
