@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,6 +26,13 @@ import java.util.List;
 @Service
 public class FileServiceImpl implements FileService {
 
+    /**
+     * 允许前端选择的存储平台白名单
+     * 与 application.yml 中 dromara.x-file-storage 下配置的 platform key 保持一致
+     */
+    private static final List<String> ALLOWED_PLATFORMS =
+            Arrays.asList("local-1", "aliyun-oss-1", "qiniu-kodo-1", "minio-1", "tencent-cos-1");
+
     @Autowired
     private FileStorageService fileStorageService;
 
@@ -33,8 +42,14 @@ public class FileServiceImpl implements FileService {
     @Autowired
     private FileInfoMapper fileInfoMapper;
 
+    /**
+     * 注入的是 Spring 提供的请求代理,调用时自动解析为当前线程的请求
+     */
+    @Autowired
+    private HttpServletRequest request;
+
     @Override
-    public Response upload(MultipartFile file, String bizType) {
+    public Response upload(MultipartFile file, String bizType, String platform) {
         // 1. 校验业务类型是否存在
         var typeConfig = uploadRootConfig.getTypeConfig().get(bizType);
         if (typeConfig == null) {
@@ -60,13 +75,24 @@ public class FileServiceImpl implements FileService {
         if (file.getSize() > maxSize) {
             throw new RuntimeException("文件不能超过 " + typeConfig.getMaxSizeMb() + "MB");
         }
-        // 6. 通过 x-file-storage 上传，自动生成外网 URL
-        org.dromara.x.file.storage.core.FileInfo uploaded = fileStorageService.of(file)
-                .setPath(typeConfig.getSubPath())
-                .upload();
-        // 7. 文件元数据入库（便于假删除/审计）
-        saveFileInfo(uploaded, originalFilename, suffix, bizType, file.getSize());
-        return Response.ok(200, "上传成功", uploaded.getUrl());
+        // 6. 校验存储平台白名单(为空则走 default-platform)
+        if (platform != null && !platform.isBlank()) {
+            if (!ALLOWED_PLATFORMS.contains(platform)) {
+                return Response.fail(500, "不支持的存储平台：" + platform);
+            }
+        }
+        // 7. 通过 x-file-storage 上传，动态指定平台，自动生成外网 URL
+        var builder = fileStorageService.of(file)
+                .setPath(typeConfig.getSubPath());
+        if (platform != null && !platform.isBlank()) {
+            builder.setPlatform(platform);
+        }
+        org.dromara.x.file.storage.core.FileInfo uploaded = builder.upload();
+        // 8. 本地存储返回相对路径时拼接后端基础地址,云存储 URL 已完整则原样返回
+        String fullUrl = buildFullUrl(uploaded.getUrl());
+        // 9. 文件元数据入库（便于假删除/审计）
+        saveFileInfo(uploaded, originalFilename, suffix, bizType, file.getSize(), fullUrl);
+        return Response.ok(200, "上传成功", fullUrl);
     }
 
     @Override
@@ -96,12 +122,14 @@ public class FileServiceImpl implements FileService {
 
     /**
      * 将 x-file-storage 上传返回的 FileInfo 入库
+     *
+     * @param fullUrl 已处理好的完整访问 URL(本地已拼接基础地址,云存储原样)
      */
     private void saveFileInfo(org.dromara.x.file.storage.core.FileInfo fi,
                               String originalFilename, String suffix,
-                              String bizType, long size) {
+                              String bizType, long size, String fullUrl) {
         FileInfo entity = new FileInfo();
-        entity.setUrl(fi.getUrl());
+        entity.setUrl(fullUrl);
         entity.setOriginalName(originalFilename);
         entity.setFilename(fi.getFilename());
         entity.setPath(fi.getPath());
@@ -116,5 +144,22 @@ public class FileServiceImpl implements FileService {
         entity.setCreateBy(AdminContext.getLoginUserId());
         entity.setUpdateBy(AdminContext.getLoginUserId());
         fileInfoMapper.insert(entity);
+    }
+
+    /**
+     * 构建完整的访问 URL
+     * - 云存储(以 http:// 或 https:// 开头)原样返回
+     * - 本地存储(相对路径如 /upload/xxx.jpg)拼接 scheme://host:port/context-path
+     */
+    private String buildFullUrl(String url) {
+        if (url == null || url.isBlank()) {
+            return url;
+        }
+        if (url.startsWith("http://") || url.startsWith("https://")) {
+            return url;
+        }
+        String base = request.getScheme() + "://" + request.getServerName()
+                + ":" + request.getServerPort() + request.getContextPath();
+        return base + (url.startsWith("/") ? url : "/" + url);
     }
 }

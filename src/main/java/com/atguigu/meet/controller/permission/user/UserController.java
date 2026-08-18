@@ -53,15 +53,16 @@ public class UserController {
     }
 
     /**
-     * 上传用户头像
+     * 上传当前登录用户头像
+     *
+     * @param platform 存储平台: local-1 / aliyun-oss-1 / qiniu-kodo-1 / minio-1 / tencent-cos-1
+     *                 为空时使用 application.yml 中 default-platform
      */
-    @PostMapping("avatar/{userId}")
+    @PostMapping("avatar")
     @RequirePermission(PermissionConst.USER_UPDATE)
-    public Response uploadUserAvatar(
-            @PathVariable Long userId,
-            @RequestParam("file") MultipartFile file
-    ) {
-        return userService.uploadUserAvatar(file, userId);
+    public Response uploadUserAvatar(@RequestParam("file") MultipartFile file,
+                                     @RequestParam(value = "platform", required = false) String platform) {
+        return userService.uploadUserAvatar(file, platform);
     }
 
     /**

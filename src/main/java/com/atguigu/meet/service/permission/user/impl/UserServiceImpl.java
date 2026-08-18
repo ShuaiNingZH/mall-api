@@ -186,9 +186,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     }
 
     @Override
-    public Response uploadUserAvatar(MultipartFile file, Long userId) {
+    public Response uploadUserAvatar(MultipartFile file, String platform) {
+        Long userId = AdminContext.getLoginUserId();
+        if (userId == null) {
+            return Response.fail(401, "未登录");
+        }
         try {
-            Response resUpload = fileService.upload(file, "avatar");
+            Response resUpload = fileService.upload(file, "avatar", platform);
             if (resUpload.getCode() == 500) return resUpload;
             String url = (String) resUpload.getData();
             UserUpdateDTO userUpdateDTO = new UserUpdateDTO();

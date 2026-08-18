@@ -25,7 +25,7 @@ public interface UserService {
 
     void exportUserToCsv(HttpServletResponse response);
 
-    Response uploadUserAvatar(MultipartFile file, Long userId);
+    Response uploadUserAvatar(MultipartFile file, String platform);
 
     Response getUserWithOrders(String phone, AdminUser loginAdmin);
 

@@ -22,6 +22,7 @@ jwt:
     public-paths:
       - /auth/login
       - /auth/register
+      - /upload/**
 #      - /user/update
 
 # 上传文件通用（业务校验：后缀、大小限制）

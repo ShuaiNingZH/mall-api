@@ -14,7 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * 商品管理接口（商品列表模块）
+ * 商品列表
  */
 @RestController
 @RequestMapping("/goods")
@@ -58,7 +58,7 @@ public class GoodsController {
         return goodsService.updateStatus(dto);
     }
 
-    /** 删除商品（逻辑删除） */
+    /** 删除商品 */
     @DeleteMapping("/{id}")
     @RequirePermission(PermissionConst.GOODS_DELETE)
     public Response deleteGoods(@PathVariable Long id) {
