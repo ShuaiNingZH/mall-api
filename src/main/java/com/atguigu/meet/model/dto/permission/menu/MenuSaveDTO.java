@@ -13,13 +13,13 @@ public class MenuSaveDTO {
     private Long parentId;
 
     @NotBlank(message = "菜单名称不能为空")
-    private String menuName;
+    private String name;
 
     /** 菜单编码(目录/菜单可用，如 sys) */
     private String menuCode;
 
     /** 权限标识(按钮用，格式: 模块:页面:操作，如 sys:user:delete) */
-    private String perms;
+    private String perm;
 
     @NotNull(message = "菜单类型不能为空")
     private Integer type;
@@ -32,6 +32,7 @@ public class MenuSaveDTO {
     private Integer visible;
     private Integer keepAlive;
     private String activeMenu;
+    private Integer hideInMenu;
     private Integer hideInTag;
     private Integer hideParent;
     private Integer status;

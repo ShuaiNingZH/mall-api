@@ -62,19 +62,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
-        // ====================== 1. 判断接口 uri 是否无需 token, 无 token 直接放行, 交给 Security 拦截  ======================
+            FilterChain filterChain) throws ServletException, IOException {
+        // ====================== 1. 判断接口 uri 是否无需 token, 无 token 直接放行, 交给 Security 拦截
+        // ======================
+        // 注意:getRequestURI() 含 context-path(如 /api/auth/login),而 public-paths 配的是不含
+        // context-path 的路径(/auth/login),
+        // 必须先去掉 context-path,否则白名单永远匹配不上,带 token 时会进入校验分支被 401。
         String uri = request.getRequestURI();
+        String contextPath = request.getContextPath();
+        final String pathForMatch;
+        if (StringUtils.hasText(contextPath) && uri.startsWith(contextPath)) {
+            pathForMatch = uri.substring(contextPath.length());
+        } else {
+            pathForMatch = "";
+        }
         if (jwtSecurityProperties
                 .getPublicPaths()
                 .stream()
-                .anyMatch(pattern -> pathMatcher.match(pattern, uri))
-        ) {
+                .anyMatch(pattern -> pathMatcher.match(pattern, pathForMatch))) {
             filterChain.doFilter(request, response);
             return;
         }
-        // ====================== 2. 需要 token  ======================
+        // ====================== 2. 需要 token ======================
         String token = getTokenFormRequest(request);
         log.info("[JWT] Processing request - URI: {}, Token: {}", uri, token);
         if (token != null && !"undefined".equals(token)) {
@@ -106,12 +115,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 userinfo.put("phone", phone);
                 userinfo.put("username", username);
 
-                // ====================== 6. 构建认证信息，告诉 Spring Security：这个人已登录！并携带其权限 ======================
+                // ====================== 6. 构建认证信息，告诉 Spring Security：这个人已登录！并携带其权限
+                // ======================
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userinfo,
                         null,
-                        authorities
-                );
+                        authorities);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
                 // 存入用户信息上下文（含权限集合，供 @RequirePermission AOP 切面直接使用）
@@ -127,25 +136,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.clearContext();
                 AdminContext.remove();
                 log.error("[JWT] 令牌验证失败: {}", ex.getMessage(), ex);
-                authenticationEntryPoint.commence(request, response, new AuthenticationServiceException("令牌验证失败: " + ex.getMessage()));
+                authenticationEntryPoint.commence(request, response,
+                        new AuthenticationServiceException("令牌验证失败: " + ex.getMessage()));
                 return;
             }
         }
         filterChain.doFilter(request, response);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

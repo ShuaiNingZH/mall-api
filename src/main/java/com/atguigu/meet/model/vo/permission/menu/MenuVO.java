@@ -12,9 +12,9 @@ import java.util.List;
 public class MenuVO {
     private Long id;
     private Long parentId;
-    private String menuName;
+    private String name;
     private String menuCode;
-    private String perms;
+    private String perm;
     private Integer type;
     private String path;
     private String routeName;
@@ -24,6 +24,7 @@ public class MenuVO {
     private Integer visible;
     private Integer keepAlive;
     private String activeMenu;
+    private Integer hideInMenu;
     private Integer hideInTag;
     private Integer hideParent;
     private Integer status;

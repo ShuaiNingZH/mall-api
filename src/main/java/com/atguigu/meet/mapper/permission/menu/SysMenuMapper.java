@@ -12,7 +12,7 @@ import java.util.List;
 public interface SysMenuMapper extends BaseMapper<SysMenu> {
 
     /**
-     * 根据 userId 查询其拥有的全部权限标识(perms)
+     * 根据 userId 查询其拥有的全部权限标识(perm)
      * 关联：sys_user_role -> sys_role_menu -> sys_menu
      */
     List<String> selectPermsByUserId(@Param("userId") Long userId);

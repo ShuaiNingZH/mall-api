@@ -227,6 +227,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         }
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(user, userVO);
+        userVO.setPermissions(currentUser.getPermissions());
         return Response.ok(userVO);
     }
 
@@ -260,7 +261,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         List<MenuVO> result = new ArrayList<>();
         for (MenuVO menu : tree) {
             if (menu.getType() == 2) {
-                if (userPermissions.contains(menu.getPerms())) {
+                if (userPermissions.contains(menu.getPerm())) {
                     result.add(menu);
                 }
             } else {

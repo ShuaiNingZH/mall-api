@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 /**
  * 用户响应VO
@@ -36,4 +37,7 @@ public class UserVO {
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;
+
+    /** 当前登录用户权限集合（仅 user-info 接口返回） */
+    private Set<String> permissions;
 }

@@ -4,7 +4,7 @@ package com.atguigu.meet.constant;
  * 权限标识常量类
  * <p>
  * 格式：前端模块:前端页面:按钮权限
- * 所有值必须与数据库 sys_menu.perms 字段保持一致。
+ * 所有值必须与数据库 sys_menu.perm 字段保持一致。
  * 建议 @RequirePermission 注解统一使用本类常量，避免手写字符串出错。
  * <p>
  * 命名规则：页面_操作，全部大写，下划线分隔

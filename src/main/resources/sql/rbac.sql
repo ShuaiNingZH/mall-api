@@ -99,19 +99,20 @@ CREATE TABLE IF NOT EXISTS sys_user_role (
 CREATE TABLE IF NOT EXISTS sys_menu (
     id           BIGINT       AUTO_INCREMENT PRIMARY KEY,
     parent_id    BIGINT       DEFAULT 0 COMMENT '父菜单ID(0表示顶级；自关联外键未加,因0非有效id,如需可改NULL后添加)',
-    menu_name    VARCHAR(50)  NOT NULL COMMENT '菜单/权限名称',
+    name         VARCHAR(50)  NOT NULL COMMENT '菜单/权限名称',
     menu_code    VARCHAR(100) COMMENT '菜单编码(目录/菜单可用，如 sys)',
-    perms        VARCHAR(100) COMMENT '权限标识(按钮用，格式: 模块:页面:操作，如 sys:user:delete)',
-    UNIQUE KEY uk_perms (perms),
+    perm         VARCHAR(100) COMMENT '权限标识(按钮用，格式: 模块:页面:操作，如 sys:user:delete)',
+    UNIQUE KEY uk_perm (perm),
     type         TINYINT      NOT NULL DEFAULT 1 COMMENT '类型 0目录 1菜单 2按钮权限',
     path         VARCHAR(200) COMMENT '路由路径(目录/菜单)',
     route_name   VARCHAR(100) COMMENT '路由名称(前端keep-alive匹配用,对应routeName)',
     component_path VARCHAR(200) COMMENT '前端组件路径(菜单,对应componentPath)',
     icon         VARCHAR(100) COMMENT '图标',
     sort         INT          DEFAULT 0 COMMENT '排序(数字越小越靠前)',
-    visible      TINYINT      DEFAULT 1 COMMENT '是否可见 1可见 0隐藏(语义等价hideInMenu,反向)',
+    visible      TINYINT      DEFAULT 1 COMMENT '是否可见 1可见 0隐藏',
     keep_alive   TINYINT      DEFAULT 0 COMMENT '是否缓存组件 1是 0否(对应keepAlive)',
     active_menu  VARCHAR(200) COMMENT '高亮菜单path(详情页等场景,对应activeMenu)',
+    hide_in_menu TINYINT      DEFAULT 0 COMMENT '是否在菜单栏隐藏 1是 0否(对应hideInMenu)',
     hide_in_tag  TINYINT      DEFAULT 0 COMMENT '是否在标签栏隐藏 1是 0否(对应hideInTag)',
     hide_parent  TINYINT      DEFAULT 0 COMMENT '是否隐藏父级菜单 1是 0否(对应hideParent)',
     status       TINYINT      DEFAULT 1 COMMENT '状态 1启用 0禁用',
@@ -139,7 +140,7 @@ INSERT IGNORE INTO sys_role(role_name, role_code) VALUES('超级管理员', 'SUP
 
 -- 菜单数据：目录 -> 菜单 -> 按钮 三级结构
 -- 系统管理目录
-INSERT IGNORE INTO sys_menu(id, parent_id, menu_name, menu_code, perms, type, path, component_path, icon, sort, visible) VALUES
+INSERT IGNORE INTO sys_menu(id, parent_id, name, menu_code, perm, type, path, component_path, icon, sort, visible) VALUES
 -- 系统管理目录
 (1, 0, '系统管理', 'sys',  NULL,        0, '/sys',       NULL,                     'Setting', 10, 1),
 -- 用户管理菜单
@@ -244,7 +245,7 @@ CREATE TABLE IF NOT EXISTS `t_banner` (
 -- 轮播图模块菜单数据
 -- =============================================
 -- 轮播图管理菜单 (假设 id 从 20 开始，避免与已有菜单冲突)
-INSERT IGNORE INTO sys_menu(id, parent_id, menu_name, menu_code, perms, type, path, component_path, icon, sort, visible) VALUES
+INSERT IGNORE INTO sys_menu(id, parent_id, name, menu_code, perm, type, path, component_path, icon, sort, visible) VALUES
 -- 轮播图管理菜单（如果系统管理目录id=1下没有轮播图菜单，可放在运营管理目录或独立目录，这里放在系统管理下做示例，实际可根据前端路由调整parent_id）
 (20, 1, '轮播图管理', 'banner', NULL,              1, 'banner',       'banner/index',          'Picture',  20, 1),
 (21, 20, '轮播图查询', NULL,   'sys:banner:query',  2, NULL, NULL, NULL, 1, 1),
@@ -289,7 +290,7 @@ CREATE TABLE IF NOT EXISTS `t_file_info` (
 -- 文件管理模块菜单数据
 -- =============================================
 -- 文件管理菜单 (id 从 30 开始,避免与已有菜单冲突)
-INSERT IGNORE INTO sys_menu(id, parent_id, menu_name, menu_code, perms, type, path, component_path, icon, sort, visible) VALUES
+INSERT IGNORE INTO sys_menu(id, parent_id, name, menu_code, perm, type, path, component_path, icon, sort, visible) VALUES
 (30, 1, '文件管理', 'file',   NULL,                  1, 'file',   'file/index',   'Document', 30, 1),
 (31, 30, '文件上传', NULL,   'file:upload:save',    2, NULL, NULL, NULL, 1, 1),
 (32, 30, '文件删除', NULL,   'file:upload:delete',  2, NULL, NULL, NULL, 2, 1);
@@ -343,7 +344,7 @@ CREATE TABLE IF NOT EXISTS `t_goods_operate_log` (
 -- 商品模块菜单数据
 -- =============================================
 -- 商品管理菜单 (id 从 40 开始,避免与已有菜单冲突)
-INSERT IGNORE INTO sys_menu(id, parent_id, menu_name, menu_code, perms, type, path, component_path, icon, sort, visible) VALUES
+INSERT IGNORE INTO sys_menu(id, parent_id, name, menu_code, perm, type, path, component_path, icon, sort, visible) VALUES
 (40, 1,  '商品管理',   'goods', NULL,                1, 'goods',  'goods/index',  'Goods',  40, 1),
 (41, 40, '商品查询',   NULL,   'sys:goods:query',   2, NULL, NULL, NULL, 1, 1),
 (42, 40, '商品新增',   NULL,   'sys:goods:add',     2, NULL, NULL, NULL, 2, 1),

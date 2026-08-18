@@ -40,8 +40,8 @@ public class MenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impleme
     public Response getPageList(MenuPageQueryDTO parameter) {
         LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
 
-        if (StringUtils.hasText(parameter.getMenuName())) {
-            wrapper.like(SysMenu::getMenuName, parameter.getMenuName());
+        if (StringUtils.hasText(parameter.getName())) {
+            wrapper.like(SysMenu::getName, parameter.getName());
         }
         if (parameter.getType() != null) {
             wrapper.eq(SysMenu::getType, parameter.getType());

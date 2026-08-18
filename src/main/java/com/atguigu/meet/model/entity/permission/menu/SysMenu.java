@@ -26,13 +26,13 @@ public class SysMenu extends Model<SysMenu> {
     /** 父菜单ID(0表示顶级) */
     private Long parentId;
 
-    private String menuName;
+    private String name;
 
     /** 菜单编码(目录/菜单可用，如 sys) */
     private String menuCode;
 
     /** 权限标识(按钮用，如 user:delete) */
-    private String perms;
+    private String perm;
 
     /** 类型 0目录 1菜单 2按钮权限 */
     private Integer type = 1;
@@ -59,6 +59,9 @@ public class SysMenu extends Model<SysMenu> {
 
     /** 高亮菜单path(详情页等场景) */
     private String activeMenu;
+
+    /** 是否在菜单栏隐藏 1是 0否 */
+    private Integer hideInMenu = 0;
 
     /** 是否在标签栏隐藏 1是 0否 */
     private Integer hideInTag = 0;

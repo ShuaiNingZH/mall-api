@@ -14,7 +14,7 @@ public class MenuPageQueryDTO {
     private Integer pageSize;
 
     /** 菜单名称（模糊查询） */
-    private String menuName;
+    private String name;
     /** 类型 0目录 1菜单 2按钮权限 */
     private Integer type;
     /** 状态 1启用 0禁用 */
