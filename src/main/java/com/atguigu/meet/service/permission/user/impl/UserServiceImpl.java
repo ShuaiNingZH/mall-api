@@ -1,6 +1,7 @@
 package com.atguigu.meet.service.permission.user.impl;
 
 import com.atguigu.meet.common.Response;
+import com.atguigu.meet.constant.PermissionConst;
 import com.atguigu.meet.exception.BusinessException;
 import com.atguigu.meet.mapper.permission.menu.SysMenuMapper;
 import com.atguigu.meet.mapper.permission.user.UserMapper;
@@ -26,11 +27,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -42,10 +48,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @Description
  * @Date 2026-08-12 23:59
  */
+@Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements UserService {
     @Autowired
@@ -86,12 +95,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         if (existUser == null) {
             return Response.fail(500, "用户不存在");
         }
-        SysUser user = new SysUser();
-//        String encodePwd = passwordEncoder.encode(userUpdateDTO.getPassword());
-        BeanUtils.copyProperties(userUpdateDTO, user);
-//        user.setPassword(encodePwd);
-        userMapper.updateById(user);
+        // 只复制 DTO 中非 null 的字段到 existUser，避免覆盖数据库原有值
+        // 注：password 字段已在 UserUpdateDTO.setPassword 中强制置 null，此接口禁止修改密码
+        BeanUtils.copyProperties(userUpdateDTO, existUser, getNullPropertyNames(userUpdateDTO));
+        userMapper.updateById(existUser);
         return Response.ok("更新用户信息成功", null);
+    }
+
+    /**
+     * 获取对象中值为 null 的属性名数组，配合 BeanUtils.copyProperties 忽略 null 值字段
+     */
+    private static String[] getNullPropertyNames(Object source) {
+        final BeanWrapper src = new BeanWrapperImpl(source);
+        java.beans.PropertyDescriptor[] pds = src.getPropertyDescriptors();
+        Set<String> emptyNames = new HashSet<>();
+        for (java.beans.PropertyDescriptor pd : pds) {
+            Object srcValue = src.getPropertyValue(pd.getName());
+            if (srcValue == null) {
+                emptyNames.add(pd.getName());
+            }
+        }
+        String[] result = new String[emptyNames.size()];
+        return emptyNames.toArray(result);
     }
 
     @Override
@@ -244,7 +269,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         Long userId = currentUser.getUserId();
         Set<String> userPermissions = currentUser.getPermissions();
 
-        List<SysMenu> allMenus = sysMenuMapper.selectMenusByUserId(userId);
+        // 超级管理员获取所有菜单（不过滤）
+        Set<String> roleCodes = currentUser.getRoleCodes();
+        boolean isSuperAdmin = roleCodes != null && roleCodes.contains(PermissionConst.ROLE_SUPER_ADMIN);
+
+        List<SysMenu> allMenus;
+        if (isSuperAdmin) {
+            // 超级管理员直接查询所有启用的菜单
+            LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(SysMenu::getStatus, 1)
+                    .eq(SysMenu::getIsDeleted, 0)
+                    .orderByAsc(SysMenu::getSort);
+            allMenus = sysMenuMapper.selectList(wrapper);
+            log.info("[菜单] 超级管理员获取所有菜单，userId={}, 菜单数={}", userId, allMenus.size());
+            // 超级管理员直接返回完整菜单树，不过滤
+            List<MenuVO> menuTree = buildMenuTree(allMenus, 0L);
+            return Response.ok(menuTree);
+        }
+
+        allMenus = sysMenuMapper.selectMenusByUserId(userId);
         List<MenuVO> menuTree = filterMenuTree(buildMenuTree(allMenus, 0L), userPermissions);
         return Response.ok(menuTree);
     }

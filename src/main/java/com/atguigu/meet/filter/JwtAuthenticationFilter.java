@@ -1,6 +1,7 @@
 package com.atguigu.meet.filter;
 
 import com.atguigu.meet.config.JwtSecurityProperties;
+import com.atguigu.meet.mapper.permission.menu.SysMenuMapper;
 import com.atguigu.meet.model.entity.permission.user.AdminUser;
 import com.atguigu.meet.service.auth.PermissionCacheService;
 import com.atguigu.meet.utils.AdminContext;
@@ -24,6 +25,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,6 +51,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private PermissionCacheService permissionCacheService;
+
+    @Autowired
+    private SysMenuMapper sysMenuMapper;
 
     private String getTokenFormRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
@@ -105,6 +110,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Set<String> permissions = permissionCacheService.getUserPermissions(userId);
                 log.info("[JWT] 权限加载完成，userId={}, 权限集合={}", userId, permissions);
 
+                // ====================== 5.1 获取用户角色编码集合 ======================
+                List<String> roleCodeList = sysMenuMapper.selectRoleCodesByUserId(userId);
+                Set<String> roleCodes = new HashSet<>(roleCodeList);
+                log.info("[JWT] 角色加载完成，userId={}, 角色集合={}", userId, roleCodes);
+
                 // 构建 Spring Security 的授权信息
                 List<GrantedAuthority> authorities = permissions.stream()
                         .map(SimpleGrantedAuthority::new)
@@ -129,6 +139,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 adminUser.setPhone(phone);
                 adminUser.setUsername(username);
                 adminUser.setPermissions(permissions);
+                adminUser.setRoleCodes(roleCodes);
                 AdminContext.set(adminUser);
                 log.info("[JWT] 用户上下文已设置，userId={}", userId);
             } catch (Exception ex) {

@@ -13,10 +13,14 @@ public class AdminUser {
     private Long userId;
     private String phone;  // 管理员手机号
     private String username;
-//    private Integer roleType; // 角色
 
     /**
      * 用户权限集合（从Redis/DB加载，存入ThreadLocal上下文）
      */
     private Set<String> permissions;
+
+    /**
+     * 用户角色编码集合（用于判断超级管理员等特殊角色）
+     */
+    private Set<String> roleCodes;
 }

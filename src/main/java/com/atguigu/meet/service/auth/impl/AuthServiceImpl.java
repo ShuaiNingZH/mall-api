@@ -1,12 +1,14 @@
 package com.atguigu.meet.service.auth.impl;
 
 import com.atguigu.meet.common.Response;
+import com.atguigu.meet.constant.PermissionConst;
 import com.atguigu.meet.exception.BusinessException;
 import com.atguigu.meet.mapper.permission.user.UserMapper;
 import com.atguigu.meet.mapper.permission.menu.SysMenuMapper;
 import com.atguigu.meet.model.dto.auth.AuthRegisterDTO;
 import com.atguigu.meet.model.dto.auth.AuthLoginDTO;
 import com.atguigu.meet.model.entity.permission.invite.SysInviteCode;
+import com.atguigu.meet.model.entity.permission.menu.SysMenu;
 import com.atguigu.meet.model.entity.permission.user.SysUser;
 import com.atguigu.meet.model.vo.permission.user.UserVO;
 import com.atguigu.meet.service.auth.AuthService;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Description
@@ -86,12 +89,34 @@ public class AuthServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         if (existUser == null) throw new BusinessException("当前用户不存在");
         boolean bool = passwordEncoder.matches(authLoginDTO.getPassword(), existUser.getPassword());
         if (!bool) throw new BusinessException("用户账号密码不正确");
+
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", existUser.getUsername());
         claims.put("phone", existUser.getPhone());
         claims.put("status", existUser.getStatus());
-        // 查询当前用户的权限码列表，写入 JWT（无状态授权）
-        List<String> permissions = sysMenuMapper.selectPermsByUserId(existUser.getId());
+
+        // 查询用户角色
+        List<String> roleCodes = sysMenuMapper.selectRoleCodesByUserId(existUser.getId());
+        boolean isSuperAdmin = roleCodes.contains(PermissionConst.ROLE_SUPER_ADMIN);
+
+        // 查询当前用户的权限码列表
+        List<String> permissions;
+        if (isSuperAdmin) {
+            // 超级管理员获取所有权限
+            LambdaQueryWrapper<SysMenu> menuWrapper = new LambdaQueryWrapper<>();
+            menuWrapper.eq(SysMenu::getStatus, 1)
+                    .eq(SysMenu::getIsDeleted, 0)
+                    .isNotNull(SysMenu::getPerm)
+                    .ne(SysMenu::getPerm, "");
+            List<SysMenu> allMenus = sysMenuMapper.selectList(menuWrapper);
+            permissions = allMenus.stream()
+                    .map(SysMenu::getPerm)
+                    .collect(Collectors.toList());
+            log.info("[登录] 超级管理员登录，加载所有权限，userId={}, 权限数={}", existUser.getId(), permissions.size());
+        } else {
+            permissions = sysMenuMapper.selectPermsByUserId(existUser.getId());
+        }
+
         claims.put("permissions", permissions);
         String token = jwtUtil.generateToken(existUser.getId(), claims);
         Map<String, Object> data = new HashMap<>();

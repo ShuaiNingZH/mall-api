@@ -16,6 +16,12 @@ public final class PermissionConst {
     }
 
     // ==========================================
+    // 角色编码常量
+    // ==========================================
+    /** 超级管理员角色编码（该角色跳过所有权限校验） */
+    public static final String ROLE_SUPER_ADMIN = "SUPER_ADMIN";
+
+    // ==========================================
     // 系统管理 -> 用户管理 (sys:user:xxx)
     // 对应 sys_menu: parent=系统管理(id=1) -> 用户管理(id=2) -> 按钮
     // ==========================================
@@ -123,4 +129,36 @@ public final class PermissionConst {
     public static final String GOODS_DELETE = "goods:list:delete";
     /** 商品上下架 */
     public static final String GOODS_SHELF = "goods:list:shelf";
+
+    // ==========================================
+    // 抢购托售商品管理 (goods:consign:xxx)
+    // 对应 sys_menu: 托售商品管理菜单 -> 按钮
+    // 模块=goods，页面=consign（controller.goods.consign）
+    // ==========================================
+    /** 托售商品查询 */
+    public static final String CONSIGN_GOODS_QUERY = "goods:consign:query";
+    /** 托售商品新增 */
+    public static final String CONSIGN_GOODS_ADD = "goods:consign:add";
+    /** 托售商品修改 */
+    public static final String CONSIGN_GOODS_UPDATE = "goods:consign:update";
+    /** 托售商品删除 */
+    public static final String CONSIGN_GOODS_DELETE = "goods:consign:delete";
+    /** 托售商品上下架 */
+    public static final String CONSIGN_GOODS_SHELF = "goods:consign:shelf";
+    /** 托售商品业务状态流转 */
+    public static final String CONSIGN_GOODS_BIZ_STATUS = "goods:consign:biz:status";
+
+    // ==========================================
+    // 抢购场次管理 (session:xxx)
+    // 对应 sys_menu: 抢购场次管理菜单 -> 按钮
+    // 模块=session（controller.seckill.session，归属“抢购系统设置”一级模块）
+    // ==========================================
+    /** 场次查询 */
+    public static final String SESSION_QUERY = "session:query";
+    /** 场次新增 */
+    public static final String SESSION_ADD = "session:add";
+    /** 场次修改 */
+    public static final String SESSION_UPDATE = "session:update";
+    /** 场次删除 */
+    public static final String SESSION_DELETE = "session:delete";
 }

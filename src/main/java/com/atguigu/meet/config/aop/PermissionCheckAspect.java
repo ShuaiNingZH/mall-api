@@ -1,6 +1,7 @@
 package com.atguigu.meet.config.aop;
 
 import com.atguigu.meet.annotation.RequirePermission;
+import com.atguigu.meet.constant.PermissionConst;
 import com.atguigu.meet.exception.BusinessException;
 import com.atguigu.meet.service.auth.PermissionCacheService;
 import com.atguigu.meet.utils.AdminContext;
@@ -59,6 +60,13 @@ public class PermissionCheckAspect {
         if (userId == null) {
             log.warn("[权限校验] 用户未登录，无法校验权限");
             throw new BusinessException(401, "未登录，请先进行身份验证");
+        }
+
+        // ====================== 超级管理员直接放行 ======================
+        Set<String> roleCodes = AdminContext.get().getRoleCodes();
+        if (roleCodes != null && roleCodes.contains(PermissionConst.ROLE_SUPER_ADMIN)) {
+            log.info("[权限校验] 超级管理员角色，直接放行，userId={}", userId);
+            return joinPoint.proceed();
         }
 
         // 接口要求的权限标识
