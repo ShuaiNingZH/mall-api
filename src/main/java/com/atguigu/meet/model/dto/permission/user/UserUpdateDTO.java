@@ -55,7 +55,7 @@ public class UserUpdateDTO extends UserBaseDTO {
     }
 
     @Override
-    public void setStatus(String status) {
-        super.setStatus((status == null || status.isEmpty()) ? null : status);
+    public void setStatus(Boolean status) {
+        super.setStatus(status);
     }
 }

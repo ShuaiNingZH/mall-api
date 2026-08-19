@@ -19,7 +19,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
+import com.atguigu.meet.utils.BeanConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,7 +77,7 @@ public class RoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impleme
             return Response.fail(500, "角色不存在");
         }
         RoleVO vo = new RoleVO();
-        BeanUtils.copyProperties(role, vo);
+        BeanConvertUtils.copyProperties(role, vo);
         // 查询角色已分配的菜单ID列表
         List<Long> menuIds = sysRoleMenuMapper.selectMenuIdsByRoleId(id);
         vo.setMenuIds(menuIds);
@@ -93,7 +93,7 @@ public class RoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impleme
             return Response.fail(500, "角色编码已存在");
         }
         SysRole role = new SysRole();
-        BeanUtils.copyProperties(dto, role);
+        BeanConvertUtils.copyProperties(dto, role);
         save(role);
         return Response.ok("新增角色成功", null);
     }
@@ -114,7 +114,7 @@ public class RoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impleme
             }
         }
         SysRole role = new SysRole();
-        BeanUtils.copyProperties(dto, role);
+        BeanConvertUtils.copyProperties(dto, role);
         updateById(role);
         return Response.ok("修改角色成功", null);
     }

@@ -37,6 +37,5 @@ public class UserBaseDTO {
     @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式不正确")
     private String phone;
 
-    @Pattern(regexp = "^[01]$", message = "状态参数不正确")
-    private String status;
+    private Boolean status;
 }

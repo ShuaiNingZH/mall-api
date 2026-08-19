@@ -18,7 +18,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
+import com.atguigu.meet.utils.BeanConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -84,7 +84,7 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, Goods> implements
             return Response.fail(500, "商品货号已存在");
         }
         Goods goods = new Goods();
-        BeanUtils.copyProperties(dto, goods);
+        BeanConvertUtils.copyProperties(dto, goods);
         // 兜底 XSS 防护：转义字符串字段
         goods.setGoodsName(escape(goods.getGoodsName()));
         goods.setGoodsSn(escape(goods.getGoodsSn()));
@@ -114,7 +114,7 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, Goods> implements
             return Response.fail(500, "商品货号已存在");
         }
         Goods goods = new Goods();
-        BeanUtils.copyProperties(dto, goods);
+        BeanConvertUtils.copyProperties(dto, goods);
         // 兜底 XSS 防护：转义字符串字段
         goods.setGoodsName(escape(goods.getGoodsName()));
         goods.setGoodsSn(escape(goods.getGoodsSn()));
@@ -136,17 +136,17 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, Goods> implements
         }
         Goods goods = new Goods();
         goods.setId(dto.getId());
-        goods.setStatus(dto.getStatus());
+        goods.setStatus(Boolean.TRUE.equals(dto.getStatus()) ? 1 : 0);
         goods.setUpdateBy(AdminContext.getLoginUserId());
         updateById(goods);
 
         // 记录操作日志：4=上下架，记录变更前后状态
         Map<String, Object> content = new LinkedHashMap<>();
-        content.put("beforeStatus", existGoods.getStatus());
+        content.put("beforeStatus", existGoods.getStatus() == 1);
         content.put("afterStatus", dto.getStatus());
         saveOperateLog(dto.getId(), 4, content);
         log.info("[商品管理] 商品上下架成功，id={}, {}->{}，操作人={}",
-                dto.getId(), existGoods.getStatus(), dto.getStatus(), goods.getUpdateBy());
+                dto.getId(), existGoods.getStatus() == 1, dto.getStatus(), goods.getUpdateBy());
         return Response.ok("商品上下架成功", null);
     }
 

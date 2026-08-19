@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.atguigu.meet.config.jackson.Integer01ToBooleanSerializer;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -26,6 +28,7 @@ public class SysRole extends Model<SysRole> {
 
     private String roleCode;
 
+    @JsonSerialize(using = Integer01ToBooleanSerializer.class)
     private Integer status = 1;
 
     private LocalDateTime createTime;

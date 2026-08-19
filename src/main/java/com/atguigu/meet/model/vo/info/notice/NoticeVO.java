@@ -14,7 +14,7 @@ public class NoticeVO {
     private String title;
     private String content;
     private Integer sort;
-    private Integer status;
+    private Boolean status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
     private Long createBy;

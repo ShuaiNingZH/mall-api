@@ -13,7 +13,7 @@ public class RoleVO {
     private Long id;
     private String roleName;
     private String roleCode;
-    private Integer status;
+    private Boolean status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 

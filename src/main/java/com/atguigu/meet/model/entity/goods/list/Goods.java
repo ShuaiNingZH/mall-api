@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.atguigu.meet.config.jackson.Integer01ToBooleanSerializer;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -40,6 +42,7 @@ public class Goods extends Model<Goods> {
     private Integer sales;
 
     /** 商品状态 0=下架 1=已上架 */
+    @JsonSerialize(using = Integer01ToBooleanSerializer.class)
     private Integer status = 0;
 
     /** 逻辑删除 0未删 1已删 */

@@ -1,7 +1,6 @@
 package com.atguigu.meet.model.dto.goods.list;
 
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -49,8 +48,6 @@ public class GoodsSaveDTO {
     @Min(value = 0, message = "库存数量不能为负数")
     private Integer stock;
 
-    /** 商品状态 0=下架 1=已上架（不传默认 0 下架） */
-    @Min(value = 0, message = "商品状态只能为 0 或 1")
-    @Max(value = 1, message = "商品状态只能为 0 或 1")
-    private Integer status;
+    /** 商品状态 false=下架 true=已上架（不传默认 false 下架） */
+    private Boolean status;
 }

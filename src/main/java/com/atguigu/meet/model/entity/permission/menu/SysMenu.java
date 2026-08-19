@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.atguigu.meet.config.jackson.Integer01ToBooleanSerializer;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -52,24 +54,30 @@ public class SysMenu extends Model<SysMenu> {
     private Integer sort = 0;
 
     /** 是否可见 1可见 0隐藏 */
+    @JsonSerialize(using = Integer01ToBooleanSerializer.class)
     private Integer visible = 1;
 
     /** 是否缓存组件 1是 0否 */
+    @JsonSerialize(using = Integer01ToBooleanSerializer.class)
     private Integer keepAlive = 0;
 
     /** 高亮菜单path(详情页等场景) */
     private String activeMenu;
 
     /** 是否在菜单栏隐藏 1是 0否 */
+    @JsonSerialize(using = Integer01ToBooleanSerializer.class)
     private Integer hideInMenu = 0;
 
     /** 是否在标签栏隐藏 1是 0否 */
+    @JsonSerialize(using = Integer01ToBooleanSerializer.class)
     private Integer hideInTag = 0;
 
     /** 是否隐藏父级菜单 1是 0否 */
+    @JsonSerialize(using = Integer01ToBooleanSerializer.class)
     private Integer hideParent = 0;
 
     /** 状态 1启用 0禁用 */
+    @JsonSerialize(using = Integer01ToBooleanSerializer.class)
     private Integer status = 1;
 
     private LocalDateTime createTime;

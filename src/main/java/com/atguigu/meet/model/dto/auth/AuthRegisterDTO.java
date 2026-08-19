@@ -31,7 +31,7 @@ public class AuthRegisterDTO extends UserBaseDTO {
         setGender("0");
         setAge(0);
         setAvatar("");
-        setStatus("1");
+        setStatus(Boolean.TRUE);
     }
 
     @Override
@@ -52,8 +52,8 @@ public class AuthRegisterDTO extends UserBaseDTO {
     }
 
     @Override
-    public void setStatus(String status) {
-        if (status != null && !status.isEmpty()) {
+    public void setStatus(Boolean status) {
+        if (status != null) {
             super.setStatus(status);
         }
     }

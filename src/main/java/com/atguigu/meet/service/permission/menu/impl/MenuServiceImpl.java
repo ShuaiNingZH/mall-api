@@ -14,7 +14,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
+import com.atguigu.meet.utils.BeanConvertUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -63,14 +63,14 @@ public class MenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impleme
             return Response.fail(500, "菜单不存在");
         }
         MenuVO vo = new MenuVO();
-        BeanUtils.copyProperties(menu, vo);
+        BeanConvertUtils.copyProperties(menu, vo);
         return Response.ok(vo);
     }
 
     @Override
     public Response addMenu(MenuSaveDTO dto) {
         SysMenu menu = new SysMenu();
-        BeanUtils.copyProperties(dto, menu);
+        BeanConvertUtils.copyProperties(dto, menu);
         save(menu);
         return Response.ok("新增菜单成功", null);
     }
@@ -82,7 +82,7 @@ public class MenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impleme
             return Response.fail(500, "菜单不存在");
         }
         SysMenu menu = new SysMenu();
-        BeanUtils.copyProperties(dto, menu);
+        BeanConvertUtils.copyProperties(dto, menu);
         updateById(menu);
         return Response.ok("修改菜单成功", null);
     }
@@ -108,7 +108,7 @@ public class MenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impleme
         List<SysMenu> menus = list(wrapper);
         List<MenuVO> voList = menus.stream().map(m -> {
             MenuVO vo = new MenuVO();
-            BeanUtils.copyProperties(m, vo);
+            BeanConvertUtils.copyProperties(m, vo);
             return vo;
         }).collect(Collectors.toList());
         return Response.ok(voList);
@@ -124,7 +124,7 @@ public class MenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impleme
                 .filter(m -> parentId.equals(m.getParentId()))
                 .map(m -> {
                     MenuVO vo = new MenuVO();
-                    BeanUtils.copyProperties(m, vo);
+                    BeanConvertUtils.copyProperties(m, vo);
                     vo.setChildren(buildMenuTree(allMenus, m.getId()));
                     return vo;
                 })

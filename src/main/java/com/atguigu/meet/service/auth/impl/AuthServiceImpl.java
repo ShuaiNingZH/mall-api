@@ -17,7 +17,7 @@ import com.atguigu.meet.utils.JwtUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
+import com.atguigu.meet.utils.BeanConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -67,7 +67,7 @@ public class AuthServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         // 3. 创建用户
         SysUser user = new SysUser();
         String encodePwd = passwordEncoder.encode(authRegisterDTO.getPassword());
-        BeanUtils.copyProperties(authRegisterDTO, user);
+        BeanConvertUtils.copyProperties(authRegisterDTO, user);
         user.setPassword(encodePwd);
         user.setInviterId(inviteCode.getInviterId());
         userMapper.insert(user);
@@ -76,7 +76,7 @@ public class AuthServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         inviteCodeService.processInviteRecord(inviteCode, user.getId(), user.getPhone());
 
         UserVO userVO = new UserVO();
-        BeanUtils.copyProperties(user, userVO);
+        BeanConvertUtils.copyProperties(user, userVO);
         return Response.ok("创建用户成功", userVO);
     }
 

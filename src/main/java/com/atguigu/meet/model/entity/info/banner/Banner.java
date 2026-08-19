@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.atguigu.meet.config.jackson.Integer01ToBooleanSerializer;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -33,6 +35,7 @@ public class Banner extends Model<Banner> {
     private String linkValue;
 
     /** 状态：0-禁用，1-启用 */
+    @JsonSerialize(using = Integer01ToBooleanSerializer.class)
     private Integer status = 1;
 
     /** 逻辑删除 0未删 1已删 */

@@ -29,7 +29,7 @@ public class UserVO {
 
     private String phone;
 
-    private String status;
+    private Boolean status;
 
     /** 邀请人ID */
     private Long inviterId;

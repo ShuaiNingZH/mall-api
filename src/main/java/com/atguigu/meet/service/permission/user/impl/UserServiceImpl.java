@@ -26,7 +26,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.springframework.beans.BeanUtils;
+import com.atguigu.meet.utils.BeanConvertUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import java.io.BufferedWriter;
@@ -44,6 +43,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -97,13 +97,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         }
         // 只复制 DTO 中非 null 的字段到 existUser，避免覆盖数据库原有值
         // 注：password 字段已在 UserUpdateDTO.setPassword 中强制置 null，此接口禁止修改密码
-        BeanUtils.copyProperties(userUpdateDTO, existUser, getNullPropertyNames(userUpdateDTO));
+        BeanConvertUtils.copyProperties(userUpdateDTO, existUser, getNullPropertyNames(userUpdateDTO));
         userMapper.updateById(existUser);
         return Response.ok("更新用户信息成功", null);
     }
 
     /**
-     * 获取对象中值为 null 的属性名数组，配合 BeanUtils.copyProperties 忽略 null 值字段
+     * 获取对象中值为 null 的属性名数组，配合 BeanConvertUtils.copyProperties 忽略 null 值字段
      */
     private static String[] getNullPropertyNames(Object source) {
         final BeanWrapper src = new BeanWrapperImpl(source);
@@ -131,7 +131,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
             return Response.fail(500, "用户不存在");
         }
         UserVO userVO = new UserVO();
-        BeanUtils.copyProperties(existUser, userVO);
+        BeanConvertUtils.copyProperties(existUser, userVO);
         return Response.ok("查询用户成功", userVO);
     }
 
@@ -255,7 +255,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
             return Response.fail(404, "用户不存在");
         }
         UserVO userVO = new UserVO();
-        BeanUtils.copyProperties(user, userVO);
+        BeanConvertUtils.copyProperties(user, userVO);
         userVO.setPermissions(currentUser.getPermissions());
         return Response.ok(userVO);
     }
@@ -303,7 +303,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
                 .filter(m -> parentId.equals(m.getParentId()))
                 .map(m -> {
                     MenuVO vo = new MenuVO();
-                    BeanUtils.copyProperties(m, vo);
+                    BeanConvertUtils.copyProperties(m, vo);
                     vo.setChildren(buildMenuTree(allMenus, m.getId()));
                     return vo;
                 })

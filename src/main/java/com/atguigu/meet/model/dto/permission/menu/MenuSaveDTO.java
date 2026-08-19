@@ -29,11 +29,11 @@ public class MenuSaveDTO {
     private String componentPath;
     private String icon;
     private Integer sort;
-    private Integer visible;
-    private Integer keepAlive;
+    private Boolean visible;
+    private Boolean keepAlive;
     private String activeMenu;
-    private Integer hideInMenu;
-    private Integer hideInTag;
-    private Integer hideParent;
-    private Integer status;
+    private Boolean hideInMenu;
+    private Boolean hideInTag;
+    private Boolean hideParent;
+    private Boolean status;
 }

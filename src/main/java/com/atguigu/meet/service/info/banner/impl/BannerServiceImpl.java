@@ -14,7 +14,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
+import com.atguigu.meet.utils.BeanConvertUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -76,7 +76,7 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
     @Override
     public Response addBanner(BannerSaveDTO dto) {
         Banner banner = new Banner();
-        BeanUtils.copyProperties(dto, banner);
+        BeanConvertUtils.copyProperties(dto, banner);
         // 操作人 = 当前登录管理员
         banner.setCreateBy(AdminContext.getLoginUserId());
         // createdAt/updatedAt 由数据库默认值填充
@@ -92,7 +92,7 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
             return Response.fail(500, "轮播图不存在");
         }
         Banner banner = new Banner();
-        BeanUtils.copyProperties(dto, banner);
+        BeanConvertUtils.copyProperties(dto, banner);
         banner.setUpdateBy(AdminContext.getLoginUserId());
         updateById(banner);
         log.info("[轮播图管理] 修改轮播图成功，id={}, 操作人={}", dto.getId(), banner.getUpdateBy());

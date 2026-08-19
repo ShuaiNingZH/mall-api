@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.atguigu.meet.config.jackson.String01ToBooleanSerializer;
 import lombok.Data;
 import org.apache.ibatis.type.JdbcType;
 
@@ -45,6 +47,7 @@ public class SysUser extends Model<SysUser> {
     private LocalDate birthday;
 
     @TableField(jdbcType = JdbcType.INTEGER)
+    @JsonSerialize(using = String01ToBooleanSerializer.class)
     private String status = "1";
 
     /** 邀请人ID（sys_user.id） */

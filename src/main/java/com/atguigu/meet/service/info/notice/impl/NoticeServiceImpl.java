@@ -20,7 +20,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
+import com.atguigu.meet.utils.BeanConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -71,7 +71,7 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
             return Response.fail(500, "公告不存在");
         }
         NoticeVO vo = new NoticeVO();
-        BeanUtils.copyProperties(notice, vo);
+        BeanConvertUtils.copyProperties(notice, vo);
         // 聚合阅读次数
         Long readCount = noticeLogMapper.selectCount(new LambdaQueryWrapper<NoticeLog>()
                 .eq(NoticeLog::getNoticeId, id));
@@ -95,7 +95,7 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
     @Override
     public Response addNotice(NoticeSaveDTO dto) {
         Notice notice = new Notice();
-        BeanUtils.copyProperties(dto, notice);
+        BeanConvertUtils.copyProperties(dto, notice);
         // 操作人 = 当前登录管理员
         notice.setCreateBy(AdminContext.getLoginUserId());
         // createTime/updateTime 由数据库默认值填充
@@ -111,7 +111,7 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
             return Response.fail(500, "公告不存在");
         }
         Notice notice = new Notice();
-        BeanUtils.copyProperties(dto, notice);
+        BeanConvertUtils.copyProperties(dto, notice);
         notice.setUpdateBy(AdminContext.getLoginUserId());
         updateById(notice);
         log.info("[公告管理] 修改公告成功，id={}, 操作人={}", dto.getId(), notice.getUpdateBy());
@@ -140,7 +140,7 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
             return null;
         }
         UserVO vo = new UserVO();
-        BeanUtils.copyProperties(user, vo);
+        BeanConvertUtils.copyProperties(user, vo);
         return vo;
     }
 }
