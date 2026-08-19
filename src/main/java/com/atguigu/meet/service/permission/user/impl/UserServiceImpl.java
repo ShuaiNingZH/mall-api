@@ -272,10 +272,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         Set<String> roleCodes = currentUser.getRoleCodes();
         boolean isSuperAdmin = roleCodes != null && roleCodes.contains(PermissionConst.ROLE_SUPER_ADMIN);
 
-        // 查询所有启用的菜单（确保包含父级菜单，保证树形结构完整）
+        // 查询所有启用的目录与菜单（不含按钮权限 type=2），确保包含父级菜单保证树形结构完整
         LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SysMenu::getStatus, 1)
                 .eq(SysMenu::getIsDeleted, 0)
+                .ne(SysMenu::getType, 2)
                 .orderByAsc(SysMenu::getSort);
         List<SysMenu> allMenus = sysMenuMapper.selectList(wrapper);
         log.info("[菜单] 查询所有菜单，userId={}, 菜单数={}", userId, allMenus.size());
