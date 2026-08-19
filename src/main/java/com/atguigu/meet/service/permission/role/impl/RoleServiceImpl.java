@@ -2,11 +2,14 @@ package com.atguigu.meet.service.permission.role.impl;
 
 import com.atguigu.meet.common.Response;
 import com.atguigu.meet.exception.BusinessException;
+import com.atguigu.meet.constant.PermissionConst;
 import com.atguigu.meet.mapper.permission.role.SysRoleMapper;
 import com.atguigu.meet.mapper.permission.role.SysRoleMenuMapper;
+import com.atguigu.meet.mapper.permission.userRole.SysUserRoleMapper;
 import com.atguigu.meet.model.dto.permission.role.RoleAssignMenuDTO;
 import com.atguigu.meet.model.dto.permission.role.RolePageQueryDTO;
 import com.atguigu.meet.model.dto.permission.role.RoleSaveDTO;
+import com.atguigu.meet.model.dto.permission.role.RoleStatusDTO;
 import com.atguigu.meet.model.dto.permission.role.RoleUpdateDTO;
 import com.atguigu.meet.model.entity.permission.role.SysRole;
 import com.atguigu.meet.model.entity.permission.role.SysRoleMenu;
@@ -37,6 +40,9 @@ public class RoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impleme
 
     @Autowired
     private SysRoleMenuMapper sysRoleMenuMapper;
+
+    @Autowired
+    private SysUserRoleMapper sysUserRoleMapper;
 
     @Autowired
     private PermissionCacheService permissionCacheService;
@@ -132,6 +138,34 @@ public class RoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impleme
         sysRoleMenuMapper.deleteByRoleId(id);
         log.info("[角色管理] 删除角色成功，roleId={}, roleName={}", id, role.getRoleName());
         return Response.ok("删除角色成功", null);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Response updateStatus(RoleStatusDTO dto) {
+        SysRole existRole = getById(dto.getId());
+        if (existRole == null) {
+            return Response.fail(500, "角色不存在");
+        }
+        // 超级管理员角色不允许禁用
+        if (PermissionConst.ROLE_SUPER_ADMIN.equals(existRole.getRoleCode())) {
+            return Response.fail(500, "超级管理员角色不允许禁用");
+        }
+        SysRole role = new SysRole();
+        role.setId(dto.getId());
+        role.setStatus(Boolean.TRUE.equals(dto.getStatus()) ? 1 : 0);
+        updateById(role);
+
+        // 状态变更后失效该角色下所有用户的权限缓存
+        List<Long> userIds = sysUserRoleMapper.selectUserIdsByRoleId(dto.getId());
+        if (userIds != null && !userIds.isEmpty()) {
+            for (Long userId : userIds) {
+                permissionCacheService.invalidateUserPermissions(userId);
+            }
+        }
+        log.info("[角色管理] 角色启停成功，roleId={}, {}->{}，关联用户数={}",
+                dto.getId(), existRole.getStatus() == 1, dto.getStatus(), userIds == null ? 0 : userIds.size());
+        return Response.ok("角色启停成功", null);
     }
 
     @Override

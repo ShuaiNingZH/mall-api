@@ -149,7 +149,25 @@ INSERT IGNORE INTO sys_menu(id, parent_id, name, menu_code, perm, type, path, co
 (3, 2, '用户查询', NULL,   'sys:user:query',  2, NULL, NULL, NULL, 1, 1),
 (4, 2, '用户新增', NULL,   'sys:user:add',    2, NULL, NULL, NULL, 2, 1),
 (5, 2, '用户修改', NULL,   'sys:user:update', 2, NULL, NULL, NULL, 3, 1),
-(6, 2, '用户删除', NULL,   'sys:user:delete', 2, NULL, NULL, NULL, 4, 1);
+(6, 2, '用户删除', NULL,   'sys:user:delete', 2, NULL, NULL, NULL, 4, 1),
+(7, 2, '用户启用/禁用', NULL, 'sys:user:status', 2, NULL, NULL, NULL, 5, 1),
+-- 角色管理菜单 (id 从 70 开始，避开已使用的 20/30/40/50/60 段)
+(70, 1, '角色管理', 'role', NULL,        1, 'role',       'sys/role/index',         'UserFilled', 20, 1),
+-- 角色管理下的按钮权限
+(71, 70, '角色查询', NULL,    'sys:role:query',         2, NULL, NULL, NULL, 1, 1),
+(72, 70, '角色新增', NULL,    'sys:role:add',           2, NULL, NULL, NULL, 2, 1),
+(73, 70, '角色修改', NULL,    'sys:role:update',        2, NULL, NULL, NULL, 3, 1),
+(74, 70, '角色删除', NULL,    'sys:role:delete',        2, NULL, NULL, NULL, 4, 1),
+(75, 70, '角色启用/禁用', NULL, 'sys:role:status',      2, NULL, NULL, NULL, 5, 1),
+(76, 70, '角色分配菜单', NULL, 'sys:role:assign:menu',  2, NULL, NULL, NULL, 6, 1),
+-- 菜单管理菜单 (id 从 80 开始)
+(80, 1, '菜单管理', 'menu', NULL,       1, 'menu',       'sys/menu/index',         'Menu',     30, 1),
+-- 菜单管理下的按钮权限
+(81, 80, '菜单查询', NULL,    'sys:menu:query',         2, NULL, NULL, NULL, 1, 1),
+(82, 80, '菜单新增', NULL,    'sys:menu:add',           2, NULL, NULL, NULL, 2, 1),
+(83, 80, '菜单修改', NULL,    'sys:menu:update',        2, NULL, NULL, NULL, 3, 1),
+(84, 80, '菜单删除', NULL,    'sys:menu:delete',        2, NULL, NULL, NULL, 4, 1),
+(85, 80, '菜单启用/禁用', NULL, 'sys:menu:status',      2, NULL, NULL, NULL, 5, 1);
 
 -- 给超级管理员分配以上全部菜单/权限
 INSERT IGNORE INTO sys_role_menu(role_id, menu_id)

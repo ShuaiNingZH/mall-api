@@ -3,6 +3,7 @@ package com.atguigu.meet.service.permission.user;
 import com.atguigu.meet.common.Response;
 import com.atguigu.meet.model.dto.permission.user.UserDeleteDTO;
 import com.atguigu.meet.model.dto.permission.user.UserPageQueryDTO;
+import com.atguigu.meet.model.dto.permission.user.UserStatusDTO;
 import com.atguigu.meet.model.dto.permission.user.UserUpdateDTO;
 import com.atguigu.meet.model.entity.permission.user.AdminUser;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,6 +17,9 @@ public interface UserService {
     Response deleteUserByIds(UserDeleteDTO userDeleteDTO);
 
     Response updateUser(UserUpdateDTO userUpdateDTO);
+
+    /** 启用/禁用用户 */
+    Response updateStatus(UserStatusDTO userStatusDTO);
 
     Response getUserByPhone(String phone, AdminUser loginAdmin);
 

@@ -6,6 +6,7 @@ import com.atguigu.meet.constant.PermissionConst;
 import com.atguigu.meet.model.dto.permission.role.RoleAssignMenuDTO;
 import com.atguigu.meet.model.dto.permission.role.RolePageQueryDTO;
 import com.atguigu.meet.model.dto.permission.role.RoleSaveDTO;
+import com.atguigu.meet.model.dto.permission.role.RoleStatusDTO;
 import com.atguigu.meet.model.dto.permission.role.RoleUpdateDTO;
 import com.atguigu.meet.service.permission.role.RoleService;
 import jakarta.validation.Valid;
@@ -63,6 +64,13 @@ public class RoleController {
     @RequirePermission(PermissionConst.ROLE_DELETE)
     public Response deleteRole(@PathVariable Long id) {
         return roleService.deleteRole(id);
+    }
+
+    /** 启用/禁用角色 */
+    @PatchMapping("/status")
+    @RequirePermission(PermissionConst.ROLE_STATUS)
+    public Response updateStatus(@RequestBody @Valid RoleStatusDTO dto) {
+        return roleService.updateStatus(dto);
     }
 
     /** 查询角色已分配的菜单ID列表 */

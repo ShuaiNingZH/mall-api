@@ -33,6 +33,8 @@ public final class PermissionConst {
     public static final String USER_UPDATE = "sys:user:update";
     /** 用户删除 */
     public static final String USER_DELETE = "sys:user:delete";
+    /** 用户启用/禁用 */
+    public static final String USER_STATUS = "sys:user:status";
 
     // ==========================================
     // 系统管理 -> 角色管理 (sys:role:xxx)
@@ -46,6 +48,8 @@ public final class PermissionConst {
     public static final String ROLE_UPDATE = "sys:role:update";
     /** 角色删除 */
     public static final String ROLE_DELETE = "sys:role:delete";
+    /** 角色启用/禁用 */
+    public static final String ROLE_STATUS = "sys:role:status";
     /** 角色分配菜单 */
     public static final String ROLE_ASSIGN_MENU = "sys:role:assign:menu";
     /** 角色分配用户 */
@@ -63,6 +67,8 @@ public final class PermissionConst {
     public static final String MENU_UPDATE = "sys:menu:update";
     /** 菜单删除 */
     public static final String MENU_DELETE = "sys:menu:delete";
+    /** 菜单启用/禁用 */
+    public static final String MENU_STATUS = "sys:menu:status";
 
     // ==========================================
     // 系统管理 -> 系统配置/日志 (sys:config:xxx / sys:log:xxx)

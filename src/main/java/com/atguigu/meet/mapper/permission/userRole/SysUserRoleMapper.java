@@ -17,6 +17,11 @@ public interface SysUserRoleMapper extends BaseMapper<SysUserRole> {
     List<Long> selectRoleIdsByUserId(@Param("userId") Long userId);
 
     /**
+     * 根据角色ID查询其用户ID列表
+     */
+    List<Long> selectUserIdsByRoleId(@Param("roleId") Long roleId);
+
+    /**
      * 根据用户ID删除所有角色关联
      */
     int deleteByUserId(@Param("userId") Long userId);

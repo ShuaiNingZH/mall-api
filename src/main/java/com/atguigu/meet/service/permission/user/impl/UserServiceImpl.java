@@ -7,6 +7,7 @@ import com.atguigu.meet.mapper.permission.menu.SysMenuMapper;
 import com.atguigu.meet.mapper.permission.user.UserMapper;
 import com.atguigu.meet.model.dto.permission.user.UserDeleteDTO;
 import com.atguigu.meet.model.dto.permission.user.UserPageQueryDTO;
+import com.atguigu.meet.model.dto.permission.user.UserStatusDTO;
 import com.atguigu.meet.model.dto.permission.user.UserUpdateDTO;
 import com.atguigu.meet.model.entity.permission.menu.SysMenu;
 import com.atguigu.meet.model.entity.permission.user.AdminUser;
@@ -15,6 +16,7 @@ import com.atguigu.meet.model.vo.PageResultVO;
 import com.atguigu.meet.model.vo.permission.menu.MenuVO;
 import com.atguigu.meet.model.vo.permission.user.UserOrderVO;
 import com.atguigu.meet.model.vo.permission.user.UserVO;
+import com.atguigu.meet.service.auth.PermissionCacheService;
 import com.atguigu.meet.service.file.FileService;
 import com.atguigu.meet.service.permission.user.UserService;
 import com.atguigu.meet.utils.AdminContext;
@@ -66,6 +68,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     @Autowired
     private SysMenuMapper sysMenuMapper;
 
+    @Autowired
+    private PermissionCacheService permissionCacheService;
+
     @Override
     @Transactional(rollbackFor = Exception.class) // 所有异常都回滚，保证原子性
     public Response deleteUserByIds(UserDeleteDTO userDeleteDTO) {
@@ -100,6 +105,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         BeanConvertUtils.copyProperties(userUpdateDTO, existUser, getNullPropertyNames(userUpdateDTO));
         userMapper.updateById(existUser);
         return Response.ok("更新用户信息成功", null);
+    }
+
+    @Override
+    @com.atguigu.meet.annotation.ForbidOperateSelf(message = "不允许禁用当前登录账号", idField = "userId")
+    public Response updateStatus(UserStatusDTO userStatusDTO) {
+        Long userId = userStatusDTO.getUserId();
+        SysUser existUser = userMapper.selectById(userId);
+        if (existUser == null) {
+            return Response.fail(500, "用户不存在");
+        }
+        SysUser user = new SysUser();
+        user.setId(userId);
+        user.setStatus(Boolean.TRUE.equals(userStatusDTO.getStatus()) ? "1" : "0");
+        userMapper.updateById(user);
+
+        // 用户状态变更后失效自己的权限缓存
+        permissionCacheService.invalidateUserPermissions(userId);
+        log.info("[用户管理] 用户启停成功，userId={}, {}->{}，操作人={}",
+                userId, "1".equals(existUser.getStatus()), userStatusDTO.getStatus(), AdminContext.getLoginUserId());
+        return Response.ok("用户启停成功", null);
     }
 
     /**

@@ -4,6 +4,7 @@ import com.atguigu.meet.common.Response;
 import com.atguigu.meet.model.dto.permission.role.RoleAssignMenuDTO;
 import com.atguigu.meet.model.dto.permission.role.RolePageQueryDTO;
 import com.atguigu.meet.model.dto.permission.role.RoleSaveDTO;
+import com.atguigu.meet.model.dto.permission.role.RoleStatusDTO;
 import com.atguigu.meet.model.dto.permission.role.RoleUpdateDTO;
 
 /**
@@ -28,6 +29,9 @@ public interface RoleService {
 
     /** 删除角色 */
     Response deleteRole(Long id);
+
+    /** 启用/禁用角色 */
+    Response updateStatus(RoleStatusDTO dto);
 
     /** 查询角色已分配的菜单ID列表 */
     Response getRoleMenuIds(Long roleId);

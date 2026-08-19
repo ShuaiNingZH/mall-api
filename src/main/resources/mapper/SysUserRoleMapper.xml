@@ -9,6 +9,11 @@
         SELECT role_id FROM sys_user_role WHERE user_id = #{userId}
     </select>
 
+    <!-- 根据角色ID查询用户ID列表 -->
+    <select id="selectUserIdsByRoleId" resultType="java.lang.Long">
+        SELECT user_id FROM sys_user_role WHERE role_id = #{roleId}
+    </select>
+
     <!-- 根据用户ID删除所有角色关联 -->
     <delete id="deleteByUserId">
         DELETE FROM sys_user_role WHERE user_id = #{userId}

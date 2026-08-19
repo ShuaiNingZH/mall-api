@@ -5,6 +5,7 @@ import com.atguigu.meet.common.Response;
 import com.atguigu.meet.constant.PermissionConst;
 import com.atguigu.meet.model.dto.permission.menu.MenuPageQueryDTO;
 import com.atguigu.meet.model.dto.permission.menu.MenuSaveDTO;
+import com.atguigu.meet.model.dto.permission.menu.MenuStatusDTO;
 import com.atguigu.meet.model.dto.permission.menu.MenuUpdateDTO;
 import com.atguigu.meet.service.permission.menu.MenuService;
 import jakarta.validation.Valid;
@@ -25,8 +26,8 @@ public class MenuController {
     /** 菜单树形列表 */
     @GetMapping("/tree")
     @RequirePermission(PermissionConst.MENU_QUERY)
-    public Response getMenuTree() {
-        return menuService.getMenuTree();
+    public Response getMenuTree(@RequestParam(required = false) String name) {
+        return menuService.getMenuTree(name);
     }
 
     /** 菜单平铺分页列表 */
@@ -69,5 +70,12 @@ public class MenuController {
     @RequirePermission(PermissionConst.MENU_DELETE)
     public Response deleteMenu(@PathVariable Long id) {
         return menuService.deleteMenu(id);
+    }
+
+    /** 启用/禁用菜单 */
+    @PatchMapping("/status")
+    @RequirePermission(PermissionConst.MENU_STATUS)
+    public Response updateStatus(@RequestBody @Valid MenuStatusDTO dto) {
+        return menuService.updateStatus(dto);
     }
 }

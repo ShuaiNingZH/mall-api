@@ -5,6 +5,7 @@ import com.atguigu.meet.common.Response;
 import com.atguigu.meet.constant.PermissionConst;
 import com.atguigu.meet.model.dto.permission.user.UserDeleteDTO;
 import com.atguigu.meet.model.dto.permission.user.UserPageQueryDTO;
+import com.atguigu.meet.model.dto.permission.user.UserStatusDTO;
 import com.atguigu.meet.model.dto.permission.user.UserUpdateDTO;
 import com.atguigu.meet.service.permission.user.UserService;
 import jakarta.validation.Valid;
@@ -50,6 +51,15 @@ public class UserController {
     @RequirePermission(PermissionConst.USER_UPDATE)
     public Response updateUser(@RequestBody @Valid UserUpdateDTO userUpdateDTO) {
         return userService.updateUser(userUpdateDTO);
+    }
+
+    /**
+     * 启用/禁用用户
+     */
+    @PatchMapping("/status")
+    @RequirePermission(PermissionConst.USER_STATUS)
+    public Response updateStatus(@RequestBody @Valid UserStatusDTO userStatusDTO) {
+        return userService.updateStatus(userStatusDTO);
     }
 
     /**
