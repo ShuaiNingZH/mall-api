@@ -158,12 +158,22 @@ jobs:
               --spring.config.additional-location=optional:file:./ > logs/app.log 2>&1 &
             app_pid=$!
             echo "$app_pid" > app.pid
-            sleep 5
+            deadline=$(( $(date +%s) + 30 ))
+            while [ "$(date +%s)" -lt "$deadline" ]; do
+              if grep -q 'Started MeetBackApplication' logs/app.log; then
+                echo "Application started successfully (PID: $app_pid)."
+                exit 0
+              fi
+              if ! kill -0 "$app_pid" 2>/dev/null || grep -q -E 'Application run failed|Error starting ApplicationContext' logs/app.log; then
+                echo "Application failed during startup."
+                tail -n 100 logs/app.log || true
+                kill "$app_pid" 2>/dev/null || true
+                exit 1
+              fi
+              sleep 2
+            done
 
-            if ! kill -0 "$app_pid" 2>/dev/null; then
-              echo "Application failed to start."
-              tail -n 100 logs/app.log || true
-              exit 1
-            fi
-
-            echo "Application started successfully (PID: $app_pid)."
+            echo "Application did not finish starting within 30 seconds."
+            tail -n 100 logs/app.log || true
+            kill "$app_pid" 2>/dev/null || true
+            exit 1
