@@ -39,6 +39,9 @@ public interface UserService {
     /** 获取当前登录用户可访问的菜单树 */
     Response getCurrentUserMenus();
 
+    /** 用户下拉选项列表（仅启用用户） */
+    Response getUserOptions();
+
     /*List<Map<String, Object>> mapList();
 
     List<Object> idList();*/

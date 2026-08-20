@@ -12,6 +12,7 @@ import com.atguigu.meet.model.dto.permission.user.UserUpdateDTO;
 import com.atguigu.meet.model.entity.permission.menu.SysMenu;
 import com.atguigu.meet.model.entity.permission.user.AdminUser;
 import com.atguigu.meet.model.entity.permission.user.SysUser;
+import com.atguigu.meet.model.vo.OptionVO;
 import com.atguigu.meet.model.vo.PageResultVO;
 import com.atguigu.meet.model.vo.permission.menu.MenuVO;
 import com.atguigu.meet.model.vo.permission.user.UserOrderVO;
@@ -322,6 +323,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         List<MenuVO> menuTree = filterMenuTree(buildMenuTree(allMenus, 0L), authorizedMenuIds, userPermissions);
         log.info("[菜单] 普通用户菜单树，userId={}, menuTree={}", userId, menuTree);
         return Response.ok(menuTree);
+    }
+
+    @Override
+    public Response getUserOptions() {
+        LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysUser::getStatus, "1");
+        wrapper.orderByAsc(SysUser::getId);
+        List<SysUser> users = list(wrapper);
+
+        List<OptionVO<Long>> options = new ArrayList<>(users.size());
+        for (SysUser u : users) {
+            String label = "用户账号: " + u.getPhone() + "; 用户 ID: " + u.getId();
+            options.add(new OptionVO<>(label, u.getId()));
+        }
+        return Response.ok(options);
     }
 
     private List<MenuVO> buildMenuTree(List<SysMenu> allMenus, Long parentId) {

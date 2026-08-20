@@ -382,7 +382,6 @@ SELECT 1, id FROM sys_menu WHERE id IN (40, 41, 42, 43, 44, 45);
 -- 注：在用户提供的原表结构基础上补充 is_deleted 字段，对齐项目逻辑删除规范（@TableLogic）
 CREATE TABLE IF NOT EXISTS `t_session` (
     `id`                   BIGINT       AUTO_INCREMENT PRIMARY KEY COMMENT '场次主键ID',
-    `activity_id`          BIGINT       NOT NULL COMMENT '所属活动ID（一个活动下有多场抢购）',
     `session_name`         VARCHAR(64)  NOT NULL COMMENT '场次名称：上午场/下午场',
     `session_status`       TINYINT      NOT NULL DEFAULT 1 COMMENT '场次状态 1开启 0关闭',
     `enter_control_minute` INT          NOT NULL DEFAULT 0 COMMENT '进场时间控制(分钟)',
@@ -396,7 +395,6 @@ CREATE TABLE IF NOT EXISTS `t_session` (
     `is_deleted`           TINYINT      NOT NULL DEFAULT 0 COMMENT '逻辑删除 0未删 1已删',
     `create_time`          DATETIME     DEFAULT CURRENT_TIMESTAMP,
     `update_time`          DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    KEY `idx_activity` (`activity_id`),
     KEY `idx_status_deleted` (`session_status`, `is_deleted`) COMMENT '查询启用场次联合索引'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='抢购场次表';
 
@@ -409,11 +407,12 @@ INSERT IGNORE INTO sys_menu(id, parent_id, name, menu_code, perm, type, path, co
 (51, 50, '场次查询',     NULL,     'session:query',          2, NULL, NULL, NULL, 1, 1),
 (52, 50, '场次新增',     NULL,     'session:add',            2, NULL, NULL, NULL, 2, 1),
 (53, 50, '场次修改',     NULL,     'session:update',         2, NULL, NULL, NULL, 3, 1),
-(54, 50, '场次删除',     NULL,     'session:delete',         2, NULL, NULL, NULL, 4, 1);
+(54, 50, '场次删除',     NULL,     'session:delete',         2, NULL, NULL, NULL, 4, 1),
+(55, 50, '场次背景图上传', NULL,   'session:bg:upload',      2, NULL, NULL, NULL, 5, 1);
 
 -- 给超级管理员分配抢购场次管理菜单/权限
 INSERT IGNORE INTO sys_role_menu(role_id, menu_id)
-SELECT 1, id FROM sys_menu WHERE id IN (50, 51, 52, 53, 54);
+SELECT 1, id FROM sys_menu WHERE id IN (50, 51, 52, 53, 54, 55);
 
 -- =============================================
 -- 抢购托售商品模块表：t_consign_goods

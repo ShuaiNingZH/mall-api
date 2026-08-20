@@ -22,11 +22,17 @@ public class FileController {
 
     /**
      * 上传文件(通用接口,后端内部/前端直传均可)
+     * <p>
+     * 业务模块专用上传接口已封装以下端点，按业务场景选择：
+     * - POST /sessions/bgImg          (bizType=sessionBg,  场次背景图)
+     * - POST /consign-goods/coverImg  (bizType=consignCover, 托售商品缩略图)
+     * - POST /consign-goods/detailImg (bizType=consignDetail,托售商品详情图)
+     * 其它业务类型可继续走本通用接口，bizType 取值与 application.yml 中 upload.type-config 一致。
      *
      * @param platform 存储平台: local-1 / aliyun-oss-1 / qiniu-kodo-1 / minio-1 / tencent-cos-1
      *                 为空时使用 application.yml 中 default-platform
      */
-    @PostMapping("upload")
+    @PostMapping("/upload")
     @RequirePermission(PermissionConst.FILE_UPLOAD)
     public Response upload(
             @RequestParam("file") MultipartFile file,

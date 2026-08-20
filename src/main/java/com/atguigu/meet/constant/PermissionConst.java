@@ -153,6 +153,10 @@ public final class PermissionConst {
     public static final String CONSIGN_GOODS_SHELF = "goods:consign:shelf";
     /** 托售商品业务状态流转 */
     public static final String CONSIGN_GOODS_BIZ_STATUS = "goods:consign:biz:status";
+    /** 托售商品缩略图上传 */
+    public static final String CONSIGN_GOODS_COVER_IMG_UPLOAD = "goods:consign:cover:upload";
+    /** 托售商品详情图上传 */
+    public static final String CONSIGN_GOODS_DETAIL_IMG_UPLOAD = "goods:consign:detail:upload";
 
     // ==========================================
     // 抢购场次管理 (session:xxx)
@@ -167,4 +171,6 @@ public final class PermissionConst {
     public static final String SESSION_UPDATE = "session:update";
     /** 场次删除 */
     public static final String SESSION_DELETE = "session:delete";
+    /** 场次背景图上传 */
+    public static final String SESSION_BG_UPLOAD = "session:bg:upload";
 }

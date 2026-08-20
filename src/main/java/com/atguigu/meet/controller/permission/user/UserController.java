@@ -36,6 +36,15 @@ public class UserController {
     }
 
     /**
+     * 用户下拉选项列表（仅启用用户）
+     */
+    @GetMapping("/options")
+    @RequirePermission(PermissionConst.USER_QUERY)
+    public Response getUserOptions() {
+        return userService.getUserOptions();
+    }
+
+    /**
      * 批量删除用户
      */
     @DeleteMapping

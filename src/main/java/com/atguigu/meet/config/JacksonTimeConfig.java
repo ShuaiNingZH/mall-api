@@ -4,12 +4,15 @@ import com.atguigu.meet.config.jackson.LenientBooleanDeserializer;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -35,8 +38,8 @@ public class JacksonTimeConfig {
 
         // 2. 配置 LocalDate 格式: yyyy-MM-dd
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(dateFormatter));
-        javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(dateFormatter));
+        javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(dateFormatter));
+        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
 
         // 3. Boolean 宽松反序列化：DTO/VO 的 Boolean 字段兼容接收 0/1/true/false/"0"/"1"
         SimpleModule booleanModule = new SimpleModule("LenientBooleanModule");

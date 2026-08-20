@@ -57,6 +57,7 @@ public class GlobalExceptionHandler {
     // ====================== 拦截 缺少@RequestBody / JSON格式错误 ======================
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public Response<?> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
+        log.warn("请求参数不能为空，请传入正确的JSON格式参数：{}", e.getMessage());
         return Response.fail(400, "请求参数不能为空，请传入正确的JSON格式参数");
     }
 
