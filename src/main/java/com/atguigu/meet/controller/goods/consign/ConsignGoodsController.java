@@ -53,7 +53,7 @@ public class ConsignGoodsController {
         }
     }
 
-    /** 分页列表（含委托人信息 + 场次名称） */
+    /** 分页列表 */
     @GetMapping
     @RequirePermission(PermissionConst.CONSIGN_GOODS_QUERY)
     public Response getPageList(@Valid ConsignGoodsPageQueryDTO parameter) {

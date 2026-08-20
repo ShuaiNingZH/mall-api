@@ -135,6 +135,10 @@ public final class PermissionConst {
     public static final String GOODS_DELETE = "goods:list:delete";
     /** 商品上下架 */
     public static final String GOODS_SHELF = "goods:list:shelf";
+    /** 商品缩略图上传 */
+    public static final String GOODS_COVER_IMG_UPLOAD = "goods:list:cover:upload";
+    /** 商品详情图上传 */
+    public static final String GOODS_DETAIL_IMG_UPLOAD = "goods:list:detail:upload";
 
     // ==========================================
     // 抢购托售商品管理 (goods:consign:xxx)

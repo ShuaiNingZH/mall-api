@@ -18,11 +18,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import com.atguigu.meet.utils.BeanConvertUtils;
+import com.atguigu.meet.utils.TimeRangeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,6 +47,19 @@ public class ConsignGoodsServiceImpl extends ServiceImpl<ConsignGoodsMapper, Con
 
     @Override
     public Response getPageList(ConsignGoodsPageQueryDTO parameter) {
+        // 解析时间范围：timeRange[0] -> 当天 00:00:00，timeRange[1] -> 当天 23:59:59
+        LocalDateTime startTime = null;
+        LocalDateTime endTime = null;
+        List<String> timeRange = parameter.getTimeRange();
+        if (timeRange != null && !timeRange.isEmpty()) {
+            if (timeRange.size() >= 1) {
+                startTime = TimeRangeUtils.toStartOfDay(timeRange.get(0));
+            }
+            if (timeRange.size() >= 2) {
+                endTime = TimeRangeUtils.toEndOfDay(timeRange.get(1));
+            }
+        }
+
         Page<ConsignGoodsVO> page = new Page<>(parameter.getPageNum(), parameter.getPageSize());
         IPage<ConsignGoodsVO> result = baseMapper.selectConsignGoodsPage(
                 page,
@@ -52,8 +68,8 @@ public class ConsignGoodsServiceImpl extends ServiceImpl<ConsignGoodsMapper, Con
                 parameter.getSessionId(),
                 parameter.getGoodsStatus(),
                 parameter.getOnlineStatus(),
-                parameter.getStartTime(),
-                parameter.getEndTime()
+                startTime,
+                endTime
         );
         return Response.ok(PageResultVO.of(result));
     }

@@ -7,11 +7,13 @@ import com.atguigu.meet.model.dto.goods.list.GoodsPageQueryDTO;
 import com.atguigu.meet.model.dto.goods.list.GoodsSaveDTO;
 import com.atguigu.meet.model.dto.goods.list.GoodsStatusDTO;
 import com.atguigu.meet.model.dto.goods.list.GoodsUpdateDTO;
+import com.atguigu.meet.service.file.FileService;
 import com.atguigu.meet.service.goods.list.GoodsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 商品列表
@@ -22,6 +24,31 @@ import org.springframework.web.bind.annotation.*;
 public class GoodsController {
     @Autowired
     private GoodsService goodsService;
+
+    @Autowired
+    private FileService fileService;
+
+    /** 上传商品缩略图（内部调用通用上传接口 bizType=goodsCover，独立权限） */
+    @PostMapping("/coverImg")
+    @RequirePermission(PermissionConst.GOODS_COVER_IMG_UPLOAD)
+    public Response uploadCoverImg(@RequestParam("file") MultipartFile file) {
+        try {
+            return fileService.upload(file, "goodsCover", null);
+        } catch (RuntimeException e) {
+            return Response.fail(500, e.getMessage());
+        }
+    }
+
+    /** 上传商品详情图（内部调用通用上传接口 bizType=goodsDetail，独立权限） */
+    @PostMapping("/detailImg")
+    @RequirePermission(PermissionConst.GOODS_DETAIL_IMG_UPLOAD)
+    public Response uploadDetailImg(@RequestParam("file") MultipartFile file) {
+        try {
+            return fileService.upload(file, "goodsDetail", null);
+        } catch (RuntimeException e) {
+            return Response.fail(500, e.getMessage());
+        }
+    }
 
     /** 商品分页列表 */
     @GetMapping
