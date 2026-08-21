@@ -31,6 +31,9 @@ public class InviteCodeServiceImpl implements InviteCodeService {
     @Autowired
     private SysInviteRecordMapper sysInviteRecordMapper;
 
+    @Autowired
+    private RedisInviteSeqGenerator seqGenerator;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Response generateInviteCode(Long userId) {
@@ -42,11 +45,13 @@ public class InviteCodeServiceImpl implements InviteCodeService {
             return Response.ok("邀请码已存在", existing);
         }
 
-        // 2. 生成唯一邀请码（重试机制）
-        String code = generateUniqueInviteCode();
+        // 2. Redis 全局自增 seq → 54 进制编码为 8 位邀请码（数学上一一对应，无碰撞，无需重试）
+        long seq = seqGenerator.nextSeq();
+        String code = InviteCodeUtil.encode(seq);
 
         // 3. 插入邀请码表
         SysInviteCode inviteCode = new SysInviteCode();
+        inviteCode.setSeq(seq);
         inviteCode.setInviteCode(code);
         inviteCode.setInviterId(userId);
         inviteCode.setStatus(0);
@@ -128,21 +133,5 @@ public class InviteCodeServiceImpl implements InviteCodeService {
         if (updated == 0) {
             throw new BusinessException("邀请码核销失败，请重试");
         }
-    }
-
-    /**
-     * 生成唯一的邀请码，循环查询数据库确保不重复（最多重试 10 次）
-     */
-    private String generateUniqueInviteCode() {
-        for (int i = 0; i < 10; i++) {
-            String code = InviteCodeUtil.generate();
-            LambdaQueryWrapper<SysInviteCode> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(SysInviteCode::getInviteCode, code);
-            if (sysInviteCodeMapper.selectCount(wrapper) == 0) {
-                return code;
-            }
-            log.warn("邀请码 {} 已存在，第 {} 次重试", code, i + 1);
-        }
-        throw new BusinessException("邀请码生成失败，请重试");
     }
 }

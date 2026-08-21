@@ -22,7 +22,10 @@ public class SysInviteCode extends Model<SysInviteCode> {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    /** 邀请码（8位，区分大小写，数字+字母） */
+    /** 原始序列号（Redis 发号器分配，与 invite_code 一一对应，便于 MAX(seq) 兜底恢复） */
+    private Long seq;
+
+    /** 邀请码（8位，区分大小写，数字+字母，由 seq 经 54 进制编码生成） */
     @Pattern(regexp = "^[A-Za-z0-9]{8}$", message = "邀请码格式不正确")
     private String inviteCode;
 

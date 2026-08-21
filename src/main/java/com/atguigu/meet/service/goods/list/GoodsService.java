@@ -1,6 +1,7 @@
 package com.atguigu.meet.service.goods.list;
 
 import com.atguigu.meet.common.Response;
+import com.atguigu.meet.model.dto.goods.list.GoodsDeleteDTO;
 import com.atguigu.meet.model.dto.goods.list.GoodsPageQueryDTO;
 import com.atguigu.meet.model.dto.goods.list.GoodsSaveDTO;
 import com.atguigu.meet.model.dto.goods.list.GoodsStatusDTO;
@@ -28,4 +29,7 @@ public interface GoodsService {
 
     /** 删除商品（逻辑删除） */
     Response deleteGoods(Long id);
+
+    /** 批量删除商品（逻辑删除） */
+    Response deleteGoodsBatch(GoodsDeleteDTO dto);
 }

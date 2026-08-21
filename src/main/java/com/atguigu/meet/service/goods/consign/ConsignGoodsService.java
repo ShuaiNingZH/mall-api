@@ -2,6 +2,7 @@ package com.atguigu.meet.service.goods.consign;
 
 import com.atguigu.meet.common.Response;
 import com.atguigu.meet.model.dto.goods.consign.ConsignGoodsBizStatusDTO;
+import com.atguigu.meet.model.dto.goods.consign.ConsignGoodsDeleteDTO;
 import com.atguigu.meet.model.dto.goods.consign.ConsignGoodsOnlineStatusDTO;
 import com.atguigu.meet.model.dto.goods.consign.ConsignGoodsPageQueryDTO;
 import com.atguigu.meet.model.dto.goods.consign.ConsignGoodsSaveDTO;
@@ -34,4 +35,7 @@ public interface ConsignGoodsService {
 
     /** 删除（逻辑删除） */
     Response deleteConsignGoods(Long id);
+
+    /** 批量删除（逻辑删除） */
+    Response deleteConsignGoodsBatch(ConsignGoodsDeleteDTO dto);
 }

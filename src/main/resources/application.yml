@@ -44,6 +44,21 @@ upload:
       sub-path: document/
       allow-suffix: jpg,png,pdf,docx,xlsx,zip,rar
       max-size-mb: 10
+    # 抢购场次背景图
+    sessionBg:
+      sub-path: session/bg/
+      allow-suffix: jpg,jpeg,png,webp
+      max-size-mb: 5
+    # 托售商品缩略图
+    consignCover:
+      sub-path: consign/cover/
+      allow-suffix: jpg,jpeg,png,webp
+      max-size-mb: 2
+    # 托售商品详情图
+    consignDetail:
+      sub-path: consign/detail/
+      allow-suffix: jpg,jpeg,png,webp
+      max-size-mb: 5
 
 # x-file-storage 文件存储配置
 # 切换平台只需修改 default-platform 并添加对应平台配置，零代码改动

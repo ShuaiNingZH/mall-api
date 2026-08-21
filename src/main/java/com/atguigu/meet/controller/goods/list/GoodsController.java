@@ -3,6 +3,7 @@ package com.atguigu.meet.controller.goods.list;
 import com.atguigu.meet.annotation.RequirePermission;
 import com.atguigu.meet.common.Response;
 import com.atguigu.meet.constant.PermissionConst;
+import com.atguigu.meet.model.dto.goods.list.GoodsDeleteDTO;
 import com.atguigu.meet.model.dto.goods.list.GoodsPageQueryDTO;
 import com.atguigu.meet.model.dto.goods.list.GoodsSaveDTO;
 import com.atguigu.meet.model.dto.goods.list.GoodsStatusDTO;
@@ -90,5 +91,12 @@ public class GoodsController {
     @RequirePermission(PermissionConst.GOODS_DELETE)
     public Response deleteGoods(@PathVariable Long id) {
         return goodsService.deleteGoods(id);
+    }
+
+    /** 批量删除商品 */
+    @DeleteMapping("/batch")
+    @RequirePermission(PermissionConst.GOODS_DELETE)
+    public Response deleteGoodsBatch(@RequestBody @Valid GoodsDeleteDTO dto) {
+        return goodsService.deleteGoodsBatch(dto);
     }
 }

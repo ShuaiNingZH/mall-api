@@ -27,8 +27,12 @@ public class GoodsSaveDTO {
     @Pattern(regexp = "^[^<>]*$", message = "商品名称不能包含 < 或 > 字符")
     private String goodsName;
 
-    /** 商品货号/编码，唯一 */
-    @NotBlank(message = "商品货号不能为空")
+    /** 商品种类名称（暂时可传可不传） */
+    @Size(max = 128, message = "商品种类长度不能超过128")
+    @Pattern(regexp = "^[^<>]*$", message = "商品种类不能包含 < 或 > 字符")
+    private String categoryName;
+
+    /** 商品货号/编码，唯一（可选，空则后端自动生成） */
     @Size(max = 64, message = "商品货号长度不能超过64")
     @Pattern(regexp = "^[^<>]*$", message = "商品货号不能包含 < 或 > 字符")
     private String goodsSn;

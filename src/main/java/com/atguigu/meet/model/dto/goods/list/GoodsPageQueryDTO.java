@@ -18,6 +18,8 @@ public class GoodsPageQueryDTO {
 
     /** 商品名称（模糊查询） */
     private String goodsName;
+    /** 商品种类名称（模糊查询） */
+    private String categoryName;
     /** 商品货号（精确查询） */
     private String goodsSn;
     /** 商品状态 0=下架 1=已上架 */

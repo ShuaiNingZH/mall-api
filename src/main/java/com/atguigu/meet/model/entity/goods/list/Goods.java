@@ -26,6 +26,9 @@ public class Goods extends Model<Goods> {
     /** 商品名称 */
     private String goodsName;
 
+    /** 商品种类名称 */
+    private String categoryName;
+
     /** 商品货号/编码，唯一 */
     private String goodsSn;
 

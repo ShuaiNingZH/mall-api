@@ -4,6 +4,7 @@ import com.atguigu.meet.annotation.RequirePermission;
 import com.atguigu.meet.common.Response;
 import com.atguigu.meet.constant.PermissionConst;
 import com.atguigu.meet.model.dto.goods.consign.ConsignGoodsBizStatusDTO;
+import com.atguigu.meet.model.dto.goods.consign.ConsignGoodsDeleteDTO;
 import com.atguigu.meet.model.dto.goods.consign.ConsignGoodsOnlineStatusDTO;
 import com.atguigu.meet.model.dto.goods.consign.ConsignGoodsPageQueryDTO;
 import com.atguigu.meet.model.dto.goods.consign.ConsignGoodsSaveDTO;
@@ -100,5 +101,12 @@ public class ConsignGoodsController {
     @RequirePermission(PermissionConst.CONSIGN_GOODS_DELETE)
     public Response deleteConsignGoods(@PathVariable Long id) {
         return consignGoodsService.deleteConsignGoods(id);
+    }
+
+    /** 批量删除 */
+    @DeleteMapping("/batch")
+    @RequirePermission(PermissionConst.CONSIGN_GOODS_DELETE)
+    public Response deleteConsignGoodsBatch(@RequestBody @Valid ConsignGoodsDeleteDTO dto) {
+        return consignGoodsService.deleteConsignGoodsBatch(dto);
     }
 }
